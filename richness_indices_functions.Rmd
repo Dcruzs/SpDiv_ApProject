@@ -85,7 +85,7 @@ ddply(data, ~ sample,function(x) {
 TEST FUNCTION WITH VEGAN DATASET "BCI"
 
 ```{r}
-bci <- read.csv("D:/DataQuest/ShinyApp/Spdiv/SpDiv_ApProject/data/vegan.BCI.csv")
+bci <- read.csv("..../SpDiv_ApProject/data/vegan.BCI.csv")
 head(bci)
 
 ############# abundance separated by sites(sample)
