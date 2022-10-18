@@ -1,0 +1,169 @@
+---
+title: "clean funtion of richness"
+author: "Deise"
+date: "2022-10-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse) 
+library(ggplot2)
+library(plyr)
+library(vegan)
+##https://www.flutterbys.com.au/stats/tut/tut13.2.html
+```
+
+
+
+Functions:
+
+```{r}
+##Species Richness, values per sites
+Richness <- function(x){
+  index <- apply(x[,-1] >0,1,sum)
+}
+R <- Richness(data)
+R
+
+## The Indices:
+
+#Margalef’s Index:
+Margalef <- function (S,N){
+  #description of parameters
+  # S = number of species of a sample/site
+  # N = total number of individuals of a sample/site
+  index <- (S-1)/log(N)
+  return(index)
+}
+Margalef(S,N)
+
+
+#Menhinick’s Index:
+Menhinick <- function (S,N){
+  #description of parameters
+  # S = number of species of a sample/site
+  # N = total number of individuals of a sample/site
+  index <- S/sqrt(N)
+  return(index)
+}
+Menhinick(S,N)
+
+#Odum, Cantlon and Kornicher’s Index:
+Odum <- function(S, N){
+  #description of parameters
+  # S = number of species of a sample/site
+  # N = total number of individuals of a sample/site
+  index <- S/log10(N)
+  return(index)
+}
+Odum(S,N)
+```
+
+How to get the parameters S, N?
+_Do not run this code, COPY and add the dataset to run this N and S
+```{r}
+############# abundance separated by sites(sample)
+N <- apply(data[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+data.frame(N)
+# double check table/visualizing
+ddply(data, ~ sample,function(x) {
+ data.frame(ABUNDANCE=sum(x[ ,-1]))
+ }) 
+
+# S is equal to Richness (R), counts the number of species recorded per site
+S <- apply(data[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+data.frame(S)
+# double check table/visualizing
+ddply(data, ~ sample,function(x) {
+ data.frame(RICHNESS=sum(x[-1]>0))
+ }) 
+
+```
+
+
+
+TEST FUNCTION WITH VEGAN DATASET "BCI"
+
+```{r}
+bci <- read.csv("D:/DataQuest/ShinyApp/Spdiv/SpDiv_ApProject/data/vegan.BCI.csv")
+head(bci)
+
+############# abundance separated by sites(sample)
+N <- apply(bci[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+data.frame(N)
+# double check table/visualizing
+ddply(bci, ~ sample,function(x) {
+ data.frame(ABUNDANCE=sum(x[ ,-1]))
+ }) 
+
+# S is equal to Richness, counts the number of species recorded per site
+S <- apply(bci[,-1] > 0,1, sum) #sum up the number of non-zero entries per row (1)
+data.frame(S)
+# double check table/visualizing
+ddply(bci, ~ sample,function(x) {
+ data.frame(RICHNESS=sum(x[-1]>0))
+ }) 
+```
+
+Indices:
+
+```{r}
+R <- Richness(bci)
+R
+
+Mg <- Margalef(S,N)
+Mn <- Menhinick(S,N) 
+Od <- Odum(S,N)
+
+#rounding th values to few decimals
+Mg <- round(Mg,2)
+Mn <- round(Mn,2)
+Od <- round(Od,2)
+```
+
+
+```{r}
+#Combine all into a df
+Index <- data.frame(bci$sample , R , Mg, Mn, Od)
+Index
+
+#change the name of the column "sample"
+setnames(Index, old = c("bci.sample"), new = c("Sample"), skip_absent = TRUE)
+Index
+
+```
+
+```{r}
+##Convert output dataframe to DT format
+library(data.table)
+library(DT)
+
+richInd <- datatable(Index)
+richInd
+
+
+```
+
+############ NEXT STEPS
+
+# Build Plots ACCUMULATION # BUILD WITH THESE INDICES A ACCUMULATION PLOT OF THE 50 SITES X DOUBLE CHECK IN VEGAN (NOt the same results; test w/all the other dataset(dune, mite)) #Test the function with diversity index
+
+################ PLOTS
+
+```{r}
+
+```
+
+###################################################################### 
+
+###Checking with vegan indies: not same result of R x specnumber()
+
+```{r}
+data("BCI")
+specnumber(BCI)  ## or rowSums(bci > 0); # observed number of species
+specnumber(BCI,MARGIN = 1)
+freq <- specnumber(BCI, MARGIN = 2)
+freq
+
+
+```
