@@ -80,6 +80,16 @@ ddply(data, ~ sample,function(x) {
 
 ```
 
+DIVERSITY INDEX:
+
+```{r}
+### Brillouin INdex
+brillouin <- function(x) {
+  N <- sum(x)
+  (log(factorial(N) - sum(log(factorial(x))))/N)
+}
+apply(data[,-1], 1, brillouin)
+```
 
 
 TEST FUNCTION WITH VEGAN DATASET "BCI"
