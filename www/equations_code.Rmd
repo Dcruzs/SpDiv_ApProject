@@ -9,15 +9,15 @@ output: html_document
 
 Margalef's Index:
 $$
-R' = \frac{(S-1)}{lnN}
+Mg = \frac{(S-1)}{lnN}
 $$
 Menhinick's Index:
 $$
-R' = \frac{S}{\sqrt{N}}
+Mn = \frac{S}{\sqrt{N}}
 $$
 Odum, Cantlon and Kornicher's Index:
 $$
-R' = \frac{S}{logN}
+Od = \frac{S}{logN}
 $$
 ###Species Diversity Indices
 

@@ -1,0 +1,50 @@
+---
+title: "Species Diversity"
+output: html_document
+runtime: shiny
+---
+***English | [português](https://ecoevoapps.shinyapps.io/species_div_indices_pt/) ***
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ecoevoapps)
+library(kableExtra) #edit and style tables
+library(tidyr)
+library(ggplot2)
+# ggplot2::theme_set(ecoevoapps::theme_apps())
+```
+
+Species Diversity metrics are used to estimate the number of species and individuals of a particular species or group in a community. The Diversity is represented by a single number (index) that summarizes quantitative surveys performed in communities, sites, and samples. Several methods (indices) were developed to measure species diversity.  
+
+This App explores and compares the most common of them. The models are based on Richness and its indices (Margalef, Menhinick and Odum); proportional abundance of diversity indices (Simpson, Shannon, and Brillouin); and sampling size correction (Rarefaction). 
+
+They are distinct mathematical equations yet formulated with species number (richness) and abundance parameters. It is important to mention that these models account for discrete individuals from sexual reproduction species rather than asexual systems, whose approach counts for biomass and percent cover. 
+
+
+##  {.tabset}
+
+### Richness Indices
+
+Species richness is simply the number of species found. It alone does not represent diversity. Communities can be described as having equal Richness but distinct diversity. For instance, green and blue communities have species 1 and 2 but differ in abundance (number of individuals). The abundance of both species in the green community is similar. It is more likely to find both species there than in the blue. Therefore, the green community is considered the most diverse.
+
+<img src="SpDiv_ApProject/www/comm_green_blue.png" alt="green blue example" style="height: 100px; width:100px;"/>
+
+We can confirm this difference in diversity using Margalef’s, Menhinick’s, and Odum’s indices, where S = richness; N =  total number of individuals; and In=  natural logarithm: 
+
+Margalef's Index:
+$$
+Mg = \frac{(S-1)}{lnN}
+$$
+
+
+
+
+Menhinick's Index:
+$$
+Mn = \frac{S}{\sqrt{N}}
+$$
+Odum, Cantlon and Kornicher's Index:
+$$
+Od = \frac{S}{logN}
+$$

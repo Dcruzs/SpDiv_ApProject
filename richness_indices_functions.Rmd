@@ -83,12 +83,38 @@ ddply(data, ~ sample,function(x) {
 DIVERSITY INDEX:
 
 ```{r}
-### Brillouin INdex
+#### OTHER DIVERSITY INDICES
+## using vegan for Simpson's Index (Ds):
+library(vegan)
+Ds <- diversity(data[-1], index = "simpson")
+Ds
+#OR
+simp <- diversity(dat_a, index = "simpson", MARGIN = 1) # data_a "data" without the sample column
+simp
+
+## using vegan for Shannon's Index (H'):
+library(vegan)
+H <- diversity(data[-1], index = "shannon")
+H
+#OR
+sha <- diversity(data, index = "shannon", MARGIN = 1) # data "flut" without the sampple row
+sha
+
+## using vegan for Brillouin Index (Hb):
+
 brillouin <- function(x) {
   N <- sum(x)
-  (log(factorial(N) - sum(log(factorial(x))))/N)
-}
-apply(data[,-1], 1, brillouin)
+  (log(factorial(N)) - sum(log(factorial(x))))/N
+ }
+ apply(data[,-1],1,brillouin)
+
+################### Species Evenness/J' of Pielou (1975):
+#  
+diversity(flut)#default is Shannon (H)
+# Pielou
+J <- H/log(specnumber(dat_a))# data_a "data" without the sample column
+J
+
 ```
 
 
