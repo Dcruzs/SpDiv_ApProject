@@ -10,9 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(ecoevoapps)
 library(kableExtra) #edit and style tables
+library(data.table)
+library(DT)
+library(vegan)
 library(tidyr)
 library(ggplot2)
-library(vegan)
+library(plyr)
+library(tidyverse)
 # ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
@@ -53,3 +57,69 @@ Odum, Cantlon, Kornicher' Index:
 Od &=\frac{S}{logN}
 \end {align}
 \]
+
+
+```{r type 1 pred prey, echo=FALSE}
+## The plan for the sidebar is to contain: 
+  ### 1) "fileInput()" for a dataset choice; 
+  ### 2) "helpText()" that will describe the data, its origin and geographic info; The descriptive stat 
+  ### 3) "checkboxinput()" for option to "Display the data table" and another "checkboxinput()" to display an accumulation plot. 
+
+sidebarLayout(
+  sidebarPanel(
+  ),
+  
+## SHOW IN the main panel the following: 
+  ### 1) "DT:: renderDataTable() or "dataTableOutput()" as summary table of the Indices values also includes Abundance (N) and richness of each sample(site/row)
+  ### 2) "DT:: renderDataTable() or "dataTableOutput()" to display the data chosen 
+  ### 3) "renderPlot() or plotOutput()"  for a plot,  perhaps.
+
+  mainPanel(renderPlot(),
+            renderPlot()
+ )
+)  
+                   ########### Sp Div Functions for the outcome TABLE:####################
+
+# N = abundance of each sample;total number of individuals of a sample/site
+N <- apply(flutter[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+data.frame(N)
+## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
+S <- apply(flutter[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+data.frame(S)
+
+## Menhinick (Mn)
+Menhinick <- function (S,N){
+  index <- S/sqrt(N)
+  return(index)
+}
+Mn <- Menhinick(S,N) 
+Mn <- round(Mn,2)
+Mn
+
+## Margalef (Mg)
+Margalef <- function (S,N){
+  index <- (S-1)/log(N)
+  return(index)
+}
+Mg <- Margalef(S,N)
+Mg <-round(Mg,2)
+Mg
+
+#checking mine function for Odum
+Odum <- function(S, N){
+    index <- S/log10(N)
+  return(index)
+}
+Od <- Odum(S,N)
+Od <- round(Od,2)
+Od
+                              # OUTPUT TABLE #
+                ########### #Combine all indices #####
+Index <- data.frame(flutter$sample, N, S, Mg, Mn, Od)
+setnames(Index, old = c("flutter.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+richInd <- datatable(Index)
+richInd
+```
+
+
+```{r type 1 pred prey, echo=FALSE}
