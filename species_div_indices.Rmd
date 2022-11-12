@@ -15,27 +15,28 @@ library(DT)
 library(vegan)
 library(tidyr)
 library(ggplot2)
-library(plyr)
-library(tidyverse)
+#library(plyr)
+#library(tidyverse)
 # ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
-Species Diversity metrics are used to estimate the number of species and individuals of a particular species or group in a community. The Diversity is represented by a single number (index) that summarizes quantitative surveys performed in communities, sites, and samples. Several methods (indices) were developed to measure species diversity.  
+Species Diversity metrics estimate the number of species in an environment. The Diversity of species is represented by a single number (index) that summarizes quantitative surveys performed in communities, sites, and samples. Several methods (indices) were developed and are frequently used in ecology and conservation studies to describe and compare biodiversity. 
 
-This App explores and compares the most common of them. The models are based on Richness and its indices (Margalef, Menhinick and Odum); proportional abundance of diversity indices (Simpson, Shannon, and Brillouin); and sampling size correction (Rarefaction). 
+This App explores and compares some of the most common Biodiversity measurements, divided here into three categories. There are models based on Richness and its indices (Margalef, Menhinick and Odum), the proportional abundance of diversity indices (Simpson, Shannon, and Brillouin), and sampling size correction (Rarefaction). 
 
-They are distinct mathematical equations yet formulated with species number (richness) and abundance parameters. It is important to mention that these models account for discrete individuals from sexual reproduction species rather than asexual systems, whose approach counts for biomass and percent cover. 
+Note: It is important to mention that these models account for discrete individuals from sexual reproduction species rather than asexual systems, whose approach counts for biomass and percent cover. 
+
 
 
 ##  {.tabset}
 
-### Richness Indices
+### Richness Index
 
 Species richness is simply the number of species found. It alone does not represent diversity. Communities can be described as having equal Richness but distinct diversity. For instance, green and blue communities have species 1 and 2 but differ in abundance (number of individuals). The abundance of both species in the green community is similar. It is more likely to find both species there than in the blue. Therefore, the green community is considered the most diverse.
 
 <img src="SpDiv_ApProject/www/comm_green_blue.png" alt="green blue example" style="height: 200px; width:200px;"/>
 
-We can confirm this difference in diversity using Margalef’s, Menhinick’s, and Odum’s indices, where S = richness; N =  total number of individuals; and In=  natural logarithm: 
+We can confirm this difference in diversity using Margalef’s, Menhinick’s, and Odum’s indices, where S = richness; N =  total number of individuals in the sample; and In=  natural logarithm: 
 
 \[
 Margalef's Index:
@@ -59,14 +60,19 @@ Od &=\frac{S}{logN}
 \]
 
 
-```{r type 1 pred prey, echo=FALSE}
+```{r type 1, echo=FALSE}
 ## The plan for the sidebar is to contain: 
   ### 1) "fileInput()" for a dataset choice; 
   ### 2) "helpText()" that will describe the data, its origin and geographic info; The descriptive stat 
-  ### 3) "checkboxinput()" for option to "Display the data table" and another "checkboxinput()" to display an accumulation plot. 
+  ### 3) "checkboxinput()" summary table or plot. 
 
 sidebarLayout(
   sidebarPanel(
+    
+    #choose a dataset
+    selectInput("dataset", "Pick a data",
+                choices = c("flutter","bci", "dune", "dune_moistureLevel" #must change all function to [,- 2], ignore the first two columns ))
+                ))
   ),
   
 ## SHOW IN the main panel the following: 
@@ -122,4 +128,111 @@ richInd
 ```
 
 
-```{r type 1 pred prey, echo=FALSE}
+### Diversity Index
+ 
+The diversity indices relate the total abundance(N) with the abundance of each species (ni) to account for the proportion of species within the sample (pi = ni/N)...
+
+\[
+Simposon diversity Index:
+\begin {align}
+D &=\sum_{i=1}^{S}\left(\frac{n_i(n_i-1)}{N(N-1)}\right)
+\end {align}
+\]
+
+\[
+Brillouin diversity index:
+\begin {align}
+B = \frac{ln(N!) - \sum_{i=1}^{S}ln(n_i)!}{N}
+\end {align}
+\]
+
+\[
+Shannon-Wiener's diversity Index:
+\begin {align}
+H' &= - \sum_{i=1}^{S}\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+\end {align}
+\]
+
+\[
+Evenness:
+\begin {align}
+E &= \frac{H'}{lnN}
+\end {align}
+\]
+
+```{r params type 1, echo=F}
+pars_vars <- c("$i$", 
+               "$ni$", 
+               "$pi$", 
+               "$N$") 
+               
+descriptions <- c("A distinc species",
+                 "Number of individuals of the species i",
+                 "Relative abundance of the species = ni/N",
+                 "total number of individuals sampled")
+                 
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+```{r, echo = F}
+## The plan for the sidebar: same as the Richness Index tab
+
+sidebarLayout(
+  sidebarPanel(
+  ),
+  
+  ## SHOW IN the main panel: same as the Richness Index tab
+  
+
+  mainPanel(renderPlot(),
+            renderPlot()
+ )
+)  
+
+  ########### Diversity Index Functions for the outcome TABLE:####################
+# N = abundance of each sample;total number of individuals of a sample/site
+N <- apply(flutter[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+data.frame(N)
+## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
+S <- apply(flutter[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+data.frame(S)
+
+## Simpson's Index (Ds), using vegan:
+D <- diversity(flutter[-1], index = "simpson")
+D <- round(D,2)
+D
+
+## Brillouin Index (Hb), ref (https://www.flutterbys.com.au/stats/tut/tut13.2.html):
+brillouin <- function(x) {
+  N <- sum(x)
+  (log(factorial(N)) - sum(log(factorial(x))))/N
+ }
+B <- apply(flutter[,-1],1,brillouin)
+B <- round(B,2)
+B
+## Shannon's Index (H'), using vegan::
+H <- diversity(flutter[-1], index = "shannon")
+H < round(H,2) # round() NOT working here :(
+H
+
+#### Species Evenness, correction /J' of Pielou (1975):
+flut <- flutter[-1]# must eliminate the categorical column and let only the numeric values
+# using Vegan
+E <- H/log(specnumber(flut))
+E <- round(E, 2)
+E
+
+                                # OUTPUT TABLE #
+                ########### #Combine all indices (D, B, H', E) #####
+DivIndex <- data.frame(flutter$sample, N, S, D, B, H, E)
+setnames(DivIndex, old = c("flutter.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+richInd <- datatable(DivIndex)
+richInd
+
+```
+

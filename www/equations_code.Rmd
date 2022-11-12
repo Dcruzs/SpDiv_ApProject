@@ -19,20 +19,39 @@ Odum, Cantlon and Kornicher's Index:
 $$
 Od = \frac{S}{logN}
 $$
+
 ###Species Diversity Indices
 
 Simpson’s diversity:
 $$
-D_S = \sum_{i=1}^{S}\left(\frac{n_i(n_i-1)}{N(N-1)}\right)
+D = \sum_{i=1}^{S}\left(\frac{n_i(n_i-1)}{N(N-1)}\right)
 $$
-Shannon-Wiener's diversity diversity:
+Brillouin diversity index:
+
+
 $$
-H' = - \sum\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+B = \frac{ln(N!) - \sum_{i=1}^{S}ln(n_i)!}{N}
 $$
+
+
+Shannon-Wiener's diversity:
+$$
+H' = - \sum_{i=1}^{S}\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+$$
+
+
+
+
+
 Species Evenness:
 $$
 E = \frac{H'}{lnN}
 $$
+
+
+
+
+
 Rarefaction
 $$
 E_{(S)} = \sum 1-\left[\frac{\binom{N-N_i}{n}}  {\binom{N}{n}}\right]
