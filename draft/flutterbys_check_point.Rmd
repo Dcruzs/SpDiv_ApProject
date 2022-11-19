@@ -1,0 +1,178 @@
+---
+title: "flutterbys_check point"
+author: "Deise"
+date: "2022-10-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# SOURCE : https://www.flutterbys.com.au/stats/tut/tut13.2.html
+
+#© flutterbys.com.au, 2010 - 2013Design by Murray Logan
+
+flutter <- read.csv("D:/DataQuest/ShinyApp/Spdiv/SpDiv_ApProject/data/flutter.csv")
+flutter
+str(flutter)
+
+class(flutter)
+
+as.factor(flutter$sample) #converter first column to factor
+flutter[2:11] <- lapply(flutter[2:11], as.numeric) # convert the values column to numeric
+str(flutter)
+
+
+```
+
+```{r}
+library(vegan)
+library(abdiv) # another ecological diversity package
+library(ape) # an append of the abdiv package
+library(tidyr)
+library(plyr)
+library(tidyverse)
+```
+
+```{r}
+##want to see if you sample exhaustively enough to start to see a leveling out of that accumulation curve
+## using vegan to create accumulation curve as resample/reshuffle method to generate some estimation confidence around the accumulation curve
+flut <- flutter[-1]# must eliminate the categorical column and let only the numeric values
+spcurve <- specaccum(comm = flut, method = "random", permutations = 1000)
+plot(spcurve)
+
+```
+```{r}
+
+```
+
+
+```{r}
+##### CALCULATE REACHNESS
+
+apply(flutter[,-1] > 0,1, sum)
+
+ddply(flutter, ~ sample, function(x){
+  data.frame(Richness = sum(x[,-1]>0))
+})
+
+#checking my function for richness
+Richness <- function(x){
+  index <- apply(x[,-1] >0,1,sum)
+}
+R <- Richness(flutter)
+R
+
+#checking mine function for richness w/ VEGAN, BUT MUST REMOVE THE FISRT COLUMN"SAMPLE"; use "flut"
+sr <- specnumber(flut)
+sr
+
+#descriptive stats
+mean(sr)
+sd(sr)
+
+```
+
+
+```{r}
+## GETTING S(n) and N
+# S = number of species of a sample/site
+# N = abundance of each sample;total number of individuals of a sample/site
+
+N <- apply(flutter[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+data.frame(N)
+
+# S is equal to Richness (R), counts the number of species recorded per site
+S <- apply(flutter[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+data.frame(S)
+```
+
+```{r}
+
+```
+
+
+```{r}
+## Flutterbys site for Menhinick
+n <-apply(flutter[,-1]>0,1,sum)
+A <- apply(flutter[,-1],1,sum)
+n/sqrt(A)
+
+#checking mine function for Menhinick
+Menhinick <- function (S,N){
+  index <- S/sqrt(N)
+  return(index)
+}
+Mn <- Menhinick(S,N) 
+Mn <- round(Mn,2)
+Mn
+     
+## Checking with 'abdiv' package######################################
+#BUT it needs to separate each sample (Row) as a data (x)
+# menhinick(x)
+
+## Flutterbys site for Margalef
+n <-apply(flutter[,-1]>0,1,sum)
+A <- apply(flutter[,-1],1,sum)
+(n-1)/log(A)
+
+
+#checking mine function for Margalef
+Margalef <- function (S,N){
+  index <- (S-1)/log(N)
+  return(index)
+}
+Mg <- Margalef(S,N)
+Mg
+
+## Checking with 'abdiv' package######################################
+#BUT it needs to separate each sample (Row) as a data (x)
+# margalef(x)
+
+
+#checking mine function for Odum
+Odum <- function(S, N){
+    index <- S/log10(N)
+  return(index)
+}
+Od <- Odum(S,N)
+Od
+```
+
+```{r}
+#### OTHER DIVERSITY INDICES
+## using vegan for Simpson's Index (Ds):
+library(vegan)
+Ds <- diversity(flutter[-1], index = "simpson")
+Ds
+#OR
+simp <- diversity(flut, index = "simpson", MARGIN = 1) # data "flut" without the sampple row
+simp
+
+## using vegan for Shannon's Index (H'):
+library(vegan)
+H <- diversity(flutter[-1], index = "shannon")
+H
+#OR
+sha <- diversity(flut, index = "shannon", MARGIN = 1) # data "flut" without the sample column
+sha
+
+## using vegan for Brillouin Index (Hb):
+
+brillouin <- function(x) {
+  N <- sum(x)
+  (log(factorial(N)) - sum(log(factorial(x))))/N
+ }
+apply(flutter[,-1],1,brillouin)
+
+
+################### Species Evenness/J' of Pielou (1975):
+#  
+diversity(flut)#default is Shannon (H)
+# Pielou
+J <- H/log(specnumber(flut))
+J
+
+```
+```{r}
+### PLOTS
+```
+
