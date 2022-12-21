@@ -67,23 +67,30 @@ Od &=\frac{S}{logN}
   ### 3) "checkboxinput()" summary table or plot. 
 
 sidebarLayout(
-  sidebarPanel(
+    sidebarPanel(
+      selectInput("dataset", "Pick a dataset:", 
+                  c("dune", "mite.data", "vegan.BCI")),
+      textOutput("description"),### add description of the dataset selected into the side panel instead of the mainPanel
+     
+         br(), ##add vertical space to the next widget 
+      
+      checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
+                         choices = c("Yes" = "Yes"), selected = "Yes")
+    ), 
     
-    #choose a dataset
-    selectInput("dataset", "Pick a data",
-                choices = c("flutter","bci", "dune", "dune_moistureLevel" #must change all function to [,- 2], ignore the first two columns ))
-                ))
-  ),
-  
+    mainPanel(
+      dataTableOutput("table"),
+      renderTable(Index()) #to display the summary of the index
+      
+    
+    )
+  )
+
 ## SHOW IN the main panel the following: 
   ### 1) "DT:: renderDataTable() or "dataTableOutput()" as summary table of the Indices values also includes Abundance (N) and richness of each sample(site/row)
   ### 2) "DT:: renderDataTable() or "dataTableOutput()" to display the data chosen 
   ### 3) "renderPlot() or plotOutput()"  for a plot,  perhaps.
 
-  mainPanel(renderPlot(),
-            renderPlot()
- )
-)  
                    ########### Sp Div Functions for the outcome TABLE:####################
 
 # N = abundance of each sample;total number of individuals of a sample/site

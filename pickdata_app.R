@@ -7,14 +7,19 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      selectInput("dataset", "Pick a dataset:", 
+      selectInput("dataset", "Choose a dataset:", 
                   c("dune", "mite.data", "vegan.BCI")),
-      textOutput("description") ### add description of the dataset selected into the side panel instead of the mainPanel
+      textOutput("description"), ### add description of the dataset selected into the side panel instead of the mainPanel
       
+      br(), ##add vertical space to the next widget 
+      
+      checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
+                         choices = c("Yes" = "Yes"), selected = "Yes")
     ), 
     
     mainPanel(
-      dataTableOutput("table")
+      dataTableOutput("table"),
+      renderTable(Index()) #to display the summary of the index
       
       
     )
