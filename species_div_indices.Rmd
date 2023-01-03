@@ -13,6 +13,7 @@ library(kableExtra) #edit and style tables
 library(data.table)
 library(DT)
 library(vegan)
+library(dplyr)
 library(tidyr)
 library(ggplot2)
 #library(plyr)
@@ -74,13 +75,13 @@ sidebarLayout(
      
          br(), ##add vertical space to the next widget 
       
-      checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
+      checkboxGroupInput("indx_outcome", label = "Calculate Indices?", ##choose to display the summary of the index
                          choices = c("Yes" = "Yes"), selected = "Yes")
     ), 
     
     mainPanel(
       dataTableOutput("table"),
-      renderTable(Index()) #to display the summary of the index
+      dataTableOutput("Index") #to display the summary of the index
       
     
     )
@@ -92,12 +93,14 @@ sidebarLayout(
   ### 3) "renderPlot() or plotOutput()"  for a plot,  perhaps.
 
                    ########### Sp Div Functions for the outcome TABLE:####################
+#get the chosen dataset
+dataset <- input$dataset 
 
 # N = abundance of each sample;total number of individuals of a sample/site
-N <- apply(flutter[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
 data.frame(N)
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(flutter[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
 
 ## Menhinick (Mn)
@@ -128,8 +131,8 @@ Od <- round(Od,2)
 Od
                               # OUTPUT TABLE #
                 ########### #Combine all indices #####
-Index <- data.frame(flutter$sample, N, S, Mg, Mn, Od)
-setnames(Index, old = c("flutter.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+Index <- data.frame(dataset$sample, N, S, Mg, Mn, Od)
+setnames(Index, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
 richInd <- datatable(Index)
 richInd
 ```

@@ -13,13 +13,13 @@ ui <- fluidPage(
       
       br(), ##add vertical space to the next widget 
       
-      checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
+      checkboxGroupInput("indx_outcome", label = "Calculate Indices?", ##choose to display the summary of the index
                          choices = c("Yes" = "Yes"), selected = "Yes")
     ), 
     
     mainPanel(
       dataTableOutput("table"),
-      renderTable(Index()) #to display the summary of the index
+      dataTableOutput("Index") #to display the summary of the index
       
       
     )
@@ -45,12 +45,19 @@ server <- function(input, output) {
            "vegan.BCI" = vegan.BCI)
   })
   
+  #myindex <- reactive({
+  #}) 
+  
+  ## How to add here the functions to connect the chosen dataset to its specific Index output Table? 
+  
   
   output$table = renderDT(myCSV(), options = list(
     pageLength = 10)
   )
   
-  
+  output$Index = renderDT(myindex(), options = list(
+    pageLength = 10)
+  )
   
 }
 
