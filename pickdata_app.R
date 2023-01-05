@@ -45,11 +45,15 @@ server <- function(input, output) {
            "vegan.BCI" = vegan.BCI)
   })
   
-  #myindex <- reactive({
-  #}) 
-  
   ## How to add here the functions to connect the chosen dataset to its specific Index output Table? 
-  
+  myindex <- reactive({if ("Yes" %in% input$indx_outcome) {
+    switch(input$dataset,
+           "dune" = dn_richInd,
+           "mite.data" = mt_richInd,
+           "vegan.BCI" = bc_richInd)}
+    
+    
+  })
   
   output$table = renderDT(myCSV(), options = list(
     pageLength = 10)

@@ -90,11 +90,11 @@ sidebarLayout(
 ## SHOW IN the main panel the following: 
   ### 1) "DT:: renderDataTable() or "dataTableOutput()" as summary table of the Indices values also includes Abundance (N) and richness of each sample(site/row)
   ### 2) "DT:: renderDataTable() or "dataTableOutput()" to display the data chosen 
-  ### 3) "renderPlot() or plotOutput()"  for a plot,  perhaps.
+  ### 3) maybe  "renderPlot() or plotOutput()"  for a plot.
 
                    ########### Sp Div Functions for the outcome TABLE:####################
 #get the chosen dataset
-dataset <- input$dataset 
+dataset <- input$dataset # through pathway oen csv and function located file "ind.R"
 
 # N = abundance of each sample;total number of individuals of a sample/site
 N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
