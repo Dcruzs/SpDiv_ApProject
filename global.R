@@ -1,6 +1,12 @@
 library(shiny)
 library(DT)
-library(vegan)
+library(vegan) # ecology package
+library(kableExtra) #edit and style tables
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
 
 setwd("D:...Spdiv/SpDiv_ApProject/data")
 

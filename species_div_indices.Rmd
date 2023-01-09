@@ -190,30 +190,40 @@ kable(x = param_df, format = "html",
 ```
 
 ```{r, echo = F}
-## The plan for the sidebar: same as the Richness Index tab
-
-sidebarLayout(
-  sidebarPanel(
-  ),
+ui <- fluidPage(
   
-  ## SHOW IN the main panel: same as the Richness Index tab
   
-
-  mainPanel(renderPlot(),
-            renderPlot()
- )
-)  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dataset", "Choose a dataset:", 
+                  c("dune", "mite.data", "vegan.BCI")),
+      textOutput("description"), ### add description of the dataset selected into the side panel instead of the mainPanel
+      
+      br(), ##add vertical space to the next widget 
+      
+      checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
+                         choices = c("Yes" = "Yes"), selected = "Yes")
+    ), 
+    
+    mainPanel(
+      dataTableOutput("table"),
+      dataTableOutput("spdiv_Index") 
+      
+      
+    )
+  )
+)
 
   ########### Diversity Index Functions for the outcome TABLE:####################
 # N = abundance of each sample;total number of individuals of a sample/site
-N <- apply(flutter[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
 data.frame(N)
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(flutter[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
 
 ## Simpson's Index (Ds), using vegan:
-D <- diversity(flutter[-1], index = "simpson")
+D <- diversity(dataset[-1], index = "simpson")
 D <- round(D,2)
 D
 
@@ -222,16 +232,16 @@ brillouin <- function(x) {
   N <- sum(x)
   (log(factorial(N)) - sum(log(factorial(x))))/N
  }
-B <- apply(flutter[,-1],1,brillouin)
+B <- apply(dataset[,-1],1,brillouin)
 B <- round(B,2)
 B
 ## Shannon's Index (H'), using vegan::
-H <- diversity(flutter[-1], index = "shannon")
+H <- diversity(dataset[-1], index = "shannon")
 H < round(H,2) # round() NOT working here :(
 H
 
 #### Species Evenness, correction /J' of Pielou (1975):
-flut <- flutter[-1]# must eliminate the categorical column and let only the numeric values
+flut <- dataset[-1]# must eliminate the categorical column and let only the numeric values
 # using Vegan
 E <- H/log(specnumber(flut))
 E <- round(E, 2)
@@ -239,10 +249,11 @@ E
 
                                 # OUTPUT TABLE #
                 ########### #Combine all indices (D, B, H', E) #####
-DivIndex <- data.frame(flutter$sample, N, S, D, B, H, E)
-setnames(DivIndex, old = c("flutter.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
-richInd <- datatable(DivIndex)
-richInd
+DivIndex <- data.frame(dataset$sample, N, S, D, B, H, E)
+setnames(DivIndex, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+data_spdiv_index <- datatable(DivIndex) %>%
+  formatStyle( c('D','B','H', 'E'),  background = "palegreen") # formatting table style
+data_spdiv_index
 
 ```
 
