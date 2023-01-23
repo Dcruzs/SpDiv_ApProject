@@ -2,6 +2,8 @@ ui <- fluidPage(
   
   
   sidebarLayout(
+    
+    
     sidebarPanel(
       selectInput("dataset", "Choose a dataset:", 
                   c("dune_vg", "mite_vg", "BCI_vg")),
@@ -10,19 +12,35 @@ ui <- fluidPage(
       br(), ##add vertical space to the next widget 
       
       checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
-                         choices = c("Yes" = "Yes"), selected = "No")
+                         choices = c("Yes" = "Yes"), selected = "No"),
+      
+      # br(), ##add vertical space to the next widget 
+      #  checkboxGroupInput("indx_dune", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
+      # choices = c("A1", "Moisture", "Management", "Use", "Manure"))
+      ## iS OT BETTER TO USE THE select BUTTOM INSTEA CHECK BOX???
+      #### MAYBE ADD DESCRIPTION TO EACH OF THE VARIABLES??? 
+      
+      
     ), 
+    
     
     mainPanel(
       dataTableOutput("table"),
-      dataTableOutput("spdiv_Index") 
+      
+      hr(),
       
       
-    )
+      dataTableOutput("spdiv_Index"),
+      hr(),
+      
+      uiOutput("var_panel"), ## a second panel conditioned to the choices of first panel.
+      
+      #plotOutput("dune_var")
+      
+      
+    ) 
   )
 )
-
-
 ##############################
 
 server <- function(input, output) {
@@ -62,6 +80,41 @@ server <- function(input, output) {
   output$spdiv_Index = renderDT(my_spdivindx(), options = list(
     pageLength = 10)
   )
+  
+  ### output of the second Panel
+  
+  output$var_panel <- renderUI({
+    if (input$dataset == "dune_vg") {
+      checkboxGroupInput("dune_var", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
+                         choices = c("A1", "Moisture", "Management", "Use", "Manure"),
+                         plotOutput("plot_dune_var"))
+    }
+    else if (input$dataset == "mite_vg"){
+      selectInput("mite_var", "Choose a variable:", 
+                  c("SubsDens", "WatrCont", "Substrate", "Shrub", "Topo"),
+                  textOutput("description")) #  maybe add description of each variable
+      
+    }
+    else {
+      checkboxGroupInput("bci_var", label = "Plot Diversity based on Environmental characteristics:", 
+                         choices = c("Age.cat", "Habitat", "Stream", "EnvHet"))
+    }
+    
+    
+  })
+  
+  ## to plot dune variables
+  duneplot <- reactive({if ("Yes" %in% input$dune_var) {
+    switch(input$dune_var,
+           "Moisture" = dn_moist_plot ,
+           "Management" = dn_mang_plot,
+           "Use" = dn_use_plot,
+           "Manure" = dn_manu_plot)}
+    
+    
+  })
+  ### output of the plots
+  output$plot_dune_var = renderPlot(duneplot)
   
 }
 
