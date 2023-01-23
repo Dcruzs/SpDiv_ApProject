@@ -157,130 +157,112 @@ bc_richInd <- datatable(Index) %>%
 ##########################
 ## choice: dune dataset ##
 ##########################
-dataset <- read.csv("D:/DataQuest/ShinyApp/myapps_practices/pickdata/data/dune.csv")
-
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+dataset <- dune_vg ## call data as dataset to apply the functions
+####
+N <- apply(dataset[ ,- 1:-6], 1,sum) # sum of non-zero sp columns, except the first 6 variables columns
 data.frame(N)
+
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,- 1:-6] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
 
 ## Simpson's Index (Ds), using vegan:
-D <- diversity(dataset[-1], index = "simpson")
+D <- diversity(dataset[- 1:-6], index = "simpson")
 D <- round(D,2)
 D
 
-## Brillouin Index (Hb), ref (https://www.flutterbys.com.au/stats/tut/tut13.2.html):
-brillouin <- function(x) {
-  N <- sum(x)
-  (log(factorial(N)) - sum(log(factorial(x))))/N
-}
-B <- apply(dataset[,-1],1,brillouin)
-B <- round(B,2)
-B
 ## Shannon's Index (H'), using vegan::
-H <- diversity(dataset[-1], index = "shannon")
+H <- diversity(dataset[- 1:-6], index = "shannon")
 H <- round(H, 2) # round() NOT working here :(
 H
 
 #### Species Evenness, correction /J' of Pielou (1975):
-flut <- dataset[-1]# must eliminate the categorical column and let only the numeric values
+flut <- dataset[- 1:-6]# must eliminate the categorical column and let only the numeric values
 # using Vegan
 E <- H/log(specnumber(flut))
 E <- round(E, 2)
 E
 
 # OUTPUT TABLE #
-########### #Combine all indices (D, B, H', E) #####
-DivIndex <- data.frame(dataset$sample, N, S, D, B, H, E)
-setnames(DivIndex, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+########### #Combine all indices (D, H', E)  with the variables #####
+DivIndex <- data.frame(dataset[,1:6], N, S, D, H, E)
 dn_spdiv_index <- datatable(DivIndex) %>%
-  formatStyle( c('D','B','H', 'E'),  background = "palegreen") # formatting table style
+  formatStyle( c('D','H', 'E'),  background = "palegreen") # formatting table style
 dn_spdiv_index
 
 ###########################
 ### choice: Mite dataset ##
 ###########################
-dataset <- read.csv("D:/DataQuest/ShinyApp/myapps_practices/pickdata/data/mite.csv")
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+dataset <- mite_vg ## call data as dataset to apply the functions
+####
+N <- apply(dataset[ ,- 1:-6], 1,sum) # sum of non-zero sp columns, except the first 6 variables columns
 data.frame(N)
+
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,- 1:-6] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
 
 ## Simpson's Index (Ds), using vegan:
-D <- diversity(dataset[-1], index = "simpson")
+D <- diversity(dataset[- 1:-6], index = "simpson")
 D <- round(D,2)
 D
 
-## Brillouin Index (Hb), ref (https://www.flutterbys.com.au/stats/tut/tut13.2.html):
-brillouin <- function(x) {
-  N <- sum(x)
-  (log(factorial(N)) - sum(log(factorial(x))))/N
-}
-B <- apply(dataset[,-1],1,brillouin)
-B <- round(B,2)
-B
 ## Shannon's Index (H'), using vegan::
-H <- diversity(dataset[-1], index = "shannon")
+H <- diversity(dataset[- 1:-6], index = "shannon")
 H <- round(H, 2) # round() NOT working here :(
 H
 
 #### Species Evenness, correction /J' of Pielou (1975):
-flut <- dataset[-1]# must eliminate the categorical column and let only the numeric values
+flut <- dataset[- 1:-6]# must eliminate the categorical column and let only the numeric values
 # using Vegan
 E <- H/log(specnumber(flut))
 E <- round(E, 2)
 E
 
 # OUTPUT TABLE #
-########### #Combine all indices (D, B, H', E) #####
-DivIndex <- data.frame(dataset$sample, N, S, D, B, H, E)
-setnames(DivIndex, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+########### #Combine all indices (D, H', E)  with the variables #####
+DivIndex <- data.frame(dataset[,1:6], N, S, D, H, E)
 mt_spdiv_index <- datatable(DivIndex) %>%
-  formatStyle( c('D','B','H', 'E'),  background = "palegreen") # formatting table style
+  formatStyle( c('D','H', 'E'),  background = "palegreen") # formatting table style
 mt_spdiv_index
 
 
 ###########################
 ### choice: BCI dataset ##
 ###########################
-dataset <- read.csv("D:/DataQuest/ShinyApp/myapps_practices/pickdata/data/vegan.BCI.csv")
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+dataset <- BCI_vg[, -c(2,3,4,5,7)]## call data as dataset to apply the functions and DELETE non-variation env.data from the row dataset
+####
+N <- apply(dataset[ ,- 1:-5], 1,sum) # sum of non-zero sp columns, except the first 6 variables columns
 data.frame(N)
+
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,- 1:-5] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
 
 ## Simpson's Index (Ds), using vegan:
-D <- diversity(dataset[-1], index = "simpson")
+D <- diversity(dataset[- 1:-5], index = "simpson")
 D <- round(D,2)
 D
 
-## Brillouin Index (Hb), ref (https://www.flutterbys.com.au/stats/tut/tut13.2.html):
-brillouin <- function(x) {
-  N <- sum(x)
-  (log(factorial(N)) - sum(log(factorial(x))))/N
-}
-B <- apply(dataset[,-1],1,brillouin)
-B <- round(B,2)
-B
 ## Shannon's Index (H'), using vegan::
-H <- diversity(dataset[-1], index = "shannon")
-H <- round(H, 2) 
+H <- diversity(dataset[- 1:-5], index = "shannon")
+H <- round(H, 2) # round() NOT working here :(
 H
 
 #### Species Evenness, correction /J' of Pielou (1975):
-flut <- dataset[-1]# must eliminate the categorical column and let only the numeric values
+flut <- dataset[- 1:-5]# must eliminate the categorical column and let only the numeric values
 # using Vegan
 E <- H/log(specnumber(flut))
 E <- round(E, 2)
 E
 
 # OUTPUT TABLE #
-########### #Combine all indices (D, B, H', E) #####
-DivIndex <- data.frame(dataset$sample, N, S, D, B, H, E)
-setnames(DivIndex, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+########### #Combine all indices (D, H', E)  with the variables #####
+DivIndex <- data.frame(dataset[,1:5], N, S, D, H, E)
 bc_spdiv_index <- datatable(DivIndex) %>%
-  formatStyle( c('D','B','H', 'E'),  background = "palegreen") # formatting table style
+  formatStyle( c('D','H', 'E'),  background = "palegreen") # formatting table style
 bc_spdiv_index
+
+### PLot Sp_div index vs the samples (order according to size)
+## order the "DivIndex" with size (N)
+

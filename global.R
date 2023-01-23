@@ -7,6 +7,8 @@ library(dplyr)
 library(tidyr)
 library(tidyverse)
 library(ggplot2)
+library(cowplot)
+
 
 ###########
 data("dune")
