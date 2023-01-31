@@ -137,8 +137,6 @@ bc_richInd <- datatable(Index) %>%
 
 
 
-
-
 ################################ Diversity Index ##############################################################################
 
 
@@ -211,8 +209,8 @@ dn_mang_plotE <- dnDivIndex  %>%
   scale_y_continuous(limits = c(0.8, 1.10), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 dn_mang_plotE
+#dn_mang_plot <- plot_grid(dn_mang_plotD , dn_mang_plotH, dn_mang_plotE, nrow=1)
 
-dn_mang_plot <- plot_grid(dn_mang_plotD , dn_mang_plotH, dn_mang_plotE, nrow=1)
 
 ### variable Use.dune
 dn_use_plotD <- dnDivIndex  %>%
@@ -241,8 +239,7 @@ dn_use_plotE <- dnDivIndex  %>%
   scale_y_continuous(limits = c(0.8, 1.10), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 dn_use_plotE
-
-dn_use_plot <- plot_grid(dn_use_plotD, dn_use_plotH, dn_use_plotE, nrow=1)
+#dn_use_plot <- plot_grid(dn_use_plotD, dn_use_plotH, dn_use_plotE, nrow=1)
 
 
 ### variable Moisture.dune: there are 5 levels of moisture
@@ -272,11 +269,10 @@ dn_moist_plotE <- dnDivIndex  %>%
   scale_y_continuous(limits = c(0.8, 1.10), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 dn_moist_plotE
+#dn_moist_plot <- plot_grid(dn_moist_plotD, dn_moist_plotH, dn_moist_plotE, nrow=1)
 
-dn_moist_plot <- plot_grid(dn_moist_plotD, dn_moist_plotH, dn_moist_plotE, nrow=1)
 
-
-### variable Manure.dune: there are 5 levels of moisture
+### variable Manure.dune: 
 dn_manu_plotD <- dnDivIndex  %>%
   ggplot(aes(x= Manure, y = D)) + # changing the Index
   geom_boxplot(fill = "#a1d99b", alpha=0.8) +
@@ -303,16 +299,7 @@ dn_manu_plotE <- dnDivIndex  %>%
   scale_y_continuous(limits = c(0.8, 1.10), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 dn_manu_plotE
-
-dn_manu_plot <- plot_grid(dn_manu_plotD, dn_manu_plotH, dn_manu_plotE, nrow=1)
-
-#### ALL dune PLOTS
-dn_moist_plot
-dn_mang_plot
-dn_use_plot
-dn_manu_plot
-
-
+#dn_manu_plot <- plot_grid(dn_manu_plotD, dn_manu_plotH, dn_manu_plotE, nrow=1)
 
 
 
@@ -381,8 +368,7 @@ mt_subs_plotE <- mtDivIndex  %>%
   scale_y_continuous(limits = c(0, 1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 mt_subs_plotE 
-
-mt_subs_plot <- plot_grid(mt_subs_plotD, mt_subs_plotH, mt_subs_plotE , nrow=1)
+# mt_subs_plot <- plot_grid(mt_subs_plotD, mt_subs_plotH, mt_subs_plotE , nrow=1)
 
 
 ### variable Shrub.mite
@@ -412,11 +398,10 @@ mt_shru_plotE <- mtDivIndex  %>%
   scale_y_continuous(limits = c(0, 1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 mt_shru_plotE
+# mt_shru_plot <- plot_grid(mt_shru_plotD, mt_shru_plotH, mt_shru_plotE, nrow=1)
 
-mt_shru_plot <- plot_grid(mt_shru_plotD, mt_shru_plotH, mt_shru_plotE, nrow=1)
 
-
-### variable Topo.mite: there are 5 levels of moisture
+### variable Topo.mite: 
 mt_topo_plotD <- mtDivIndex  %>%
   ggplot(aes(x= Topo, y = D)) + # changing the Index
   geom_boxplot(fill = "#a1d99b", alpha=0.8) +
@@ -443,16 +428,7 @@ mt_topo_plotE <- mtDivIndex  %>%
   scale_y_continuous(limits = c(0, 1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 mt_topo_plotE
-
-mt_topo_plot <- plot_grid(mt_topo_plotD, mt_topo_plotH, mt_topo_plotE,nrow=1)
-
-
-#### ALL dune PLOTS
-mt_subs_plot
-mt_shru_plot
-mt_topo_plot
-
-
+# mt_topo_plot <- plot_grid(mt_topo_plotD, mt_topo_plotH, mt_topo_plotE,nrow=1)
 
 
 
@@ -523,8 +499,7 @@ bc_age_plotE <- bcDivIndex  %>%
   scale_y_continuous(limits = c(0, 1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 bc_age_plotE 
-
-bc_age_plot <- plot_grid(bc_age_plotD, bc_age_plotH, bc_age_plotE, nrow=1)
+# bc_age_plot <- plot_grid(bc_age_plotD, bc_age_plotH, bc_age_plotE, nrow=1)
 
 
 
@@ -555,10 +530,7 @@ bc_habt_plotE <- bcDivIndex  %>%
   scale_y_continuous(limits = c(0,1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 bc_habt_plotE
-
-bc_habt_plot <- plot_grid(bc_habt_plotD, bc_habt_plotH, bc_habt_plotE, nrow=1)
-
-
+# bc_habt_plot <- plot_grid(bc_habt_plotD, bc_habt_plotH, bc_habt_plotE, nrow=1)
 
 
 ### variable Stream.bci
@@ -588,12 +560,5 @@ bc_strm_plotE <- bcDivIndex %>%
   scale_y_continuous(limits = c(0, 1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 bc_strm_plotE
+# bc_strm_plot <- plot_grid(bc_strm_plotD, bc_strm_plotH, bc_strm_plotE,nrow=1)
 
-bc_strm_plot <- plot_grid(bc_strm_plotD, bc_strm_plotH, bc_strm_plotE,nrow=1)
-
-
-
-#### ALL dune PLOTS
-bc_age_plot 
-bc_habt_plot
-bc_strm_plot

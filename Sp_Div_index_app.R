@@ -1,6 +1,5 @@
 ui <- fluidPage(
   
-  
   sidebarLayout(
     
     
@@ -12,36 +11,30 @@ ui <- fluidPage(
       br(), ##add vertical space to the next widget 
       
       checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
-                         choices = c("Yes" = "Yes"), selected = "No"),
-      
-      # br(), ##add vertical space to the next widget 
-      #  checkboxGroupInput("indx_dune", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
-      # choices = c("A1", "Moisture", "Management", "Use", "Manure"))
-      ## iS OT BETTER TO USE THE select BUTTOM INSTEA CHECK BOX???
-      #### MAYBE ADD DESCRIPTION TO EACH OF THE VARIABLES??? 
-      
-      
+                         choices = c("Yes" = "Yes"), selected = "No")
     ), 
-    
     
     mainPanel(
       dataTableOutput("table"),
       
       hr(),
       
-      
       dataTableOutput("spdiv_Index"),
       hr(),
       
-      uiOutput("var_panel"), ## a second panel conditioned to the choices of first panel.
-      
-      #plotOutput("dune_var")
+      fluidRow(
+        column(3,
+               uiOutput("var_panel")), ## a second panel conditioned to the choices of first panel.
+        
+        column(8,
+               plotOutput("plots", width = 1000, height = 1000))
+      )
       
       
     ) 
   )
 )
-##############################
+###########################
 
 server <- function(input, output) {
   
@@ -52,6 +45,7 @@ server <- function(input, output) {
            "BCI_vg" = "Floristic surveys on the Panamanian island of Barro Colorado (BCI) revealed the number of trees in a 1-hectare plot. The table shows the 225 species (columns) in 50 plots/samples (rows). Although the dataset contains nine environmental variables, the Index Table output only displays the columns whose observations varied between samples. See the R - Vegan package for more information (Oksanen et al. 2022)."
     ) 
   })
+  
   output$description = renderText(desc())
   
   
@@ -68,8 +62,6 @@ server <- function(input, output) {
            "dune_vg" = dn_spdiv_index,
            "mite_vg" = mt_spdiv_index,
            "BCI_vg" = bc_spdiv_index)}
-    
-    
   })
   
   
@@ -86,37 +78,127 @@ server <- function(input, output) {
   output$var_panel <- renderUI({
     if (input$dataset == "dune_vg") {
       checkboxGroupInput("dune_var", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
-                         choices = c("A1", "Moisture", "Management", "Use", "Manure"),
-                         plotOutput("plot_dune_var"))
+                         choices = c("Moisture", "Management", "Use", "Manure")) 
+      
     }
     else if (input$dataset == "mite_vg"){
-      selectInput("mite_var", "Choose a variable:", 
-                  c("SubsDens", "WatrCont", "Substrate", "Shrub", "Topo"),
-                  textOutput("description")) #  maybe add description of each variable
+      checkboxGroupInput("mite_var", "Plot Diversity based on Environmental characteristics:", 
+                         c("Substrate", "Shrub", "Topo"))
       
     }
     else {
       checkboxGroupInput("bci_var", label = "Plot Diversity based on Environmental characteristics:", 
-                         choices = c("Age.cat", "Habitat", "Stream", "EnvHet"))
+                         choices = c("Age.cat", "Habitat", "Stream"))
     }
-    
-    
   })
   
-  ## to plot dune variables
-  duneplot <- reactive({if ("Yes" %in% input$dune_var) {
-    switch(input$dune_var,
-           "Moisture" = dn_moist_plot ,
-           "Management" = dn_mang_plot,
-           "Use" = dn_use_plot,
-           "Manure" = dn_manu_plot)}
-    
-    
+  ## Make plots DUNE variables
+  moist_dune_plt <- reactive ({
+    if("Moisture" %in% input$dune_var){
+      plot_out <- plot_grid(dn_moist_plotD, dn_moist_plotH, dn_moist_plotE, nrow=1)
+      ### variable Moisture.dune: 
+      plot_out  }
+  }) 
+  mang_dune_plt <- reactive ({
+    if("Management" %in% input$dune_var){
+      plot_out <- plot_grid(dn_mang_plotD , dn_mang_plotH, dn_mang_plotE, nrow=1)
+      ### PLOT variable Management.dune
+      plot_out  }
   })
-  ### output of the plots
-  output$plot_dune_var = renderPlot(duneplot)
+  use_dune_plt <- reactive ({
+    if("Use" %in% input$dune_var){
+      plot_out <- plot_grid(dn_use_plotD, dn_use_plotH, dn_use_plotE, nrow=1)
+      ### variable Use.dune
+      plot_out  }
+  })
+  manu_dune_plt <- reactive ({
+    if("Manure" %in% input$dune_var){
+      plot_out <- plot_grid(dn_manu_plotD, dn_manu_plotH, dn_manu_plotE, nrow=1)
+      ## variable Manure.dune: 
+      plot_out  }
+  })   
   
-}
+  # Make a list of plots and print out plots based on which ones were requested 
+  dn_plot_list <- reactive({
+    list(moist_dune_plt(),mang_dune_plt (), use_dune_plt(),manu_dune_plt()) %>% 
+      discard(is.null)
+  })
+  #plot_grid() is used to combine multiple plots into one.
+  dn_plots_print <- reactive({
+    plot_grid(moist_dune_plt(),mang_dune_plt (), use_dune_plt(),manu_dune_plt(), ncol = 1) 
+  })
 
+  
+  ##########################
+  ## Make plots MITE variables
+  sub_mite_plt <- reactive ({
+    if("Substrate" %in% input$mite_var){
+      plot_out <- plot_grid(mt_subs_plotD, mt_subs_plotH, mt_subs_plotE, nrow=1)
+      plot_out    }
+  })
+  shr_mite_plt <- reactive ({
+    if("Shrub" %in% input$mite_var){
+      plot_out <- plot_grid(mt_shru_plotD, mt_shru_plotH, mt_shru_plotE, nrow=1)
+      plot_out   }
+  })   
+  topo_mite_plt <- reactive ({
+    if("Topo" %in% input$mite_var){
+      plot_out <- plot_grid(mt_topo_plotD, mt_topo_plotH, mt_topo_plotE, nrow=1)
+      plot_out   }
+  })  
+  
+  # Make a list of plots and print out plots based on which ones were requested 
+  mt_plot_list <- reactive({
+    list(sub_mite_plt(),shr_mite_plt(), topo_mite_plt()) %>% 
+      discard(is.null)
+  })
+  #plot_grid() is used to combine multiple plots into one.
+  mt_plots_print <- reactive({
+    plot_grid(sub_mite_plt(),shr_mite_plt(), topo_mite_plt(), ncol = 1)  
+    
+  })
+ 
+  
+  ########################## 
+  ## Make plots MITE variables
+  age_bci_plt <- reactive ({
+    if("Age.cat" %in% input$bci_var){
+      plot_out <- plot_grid(bc_age_plotD, bc_age_plotH, bc_age_plotE, nrow=1)
+      plot_out  }
+  })  
+  habt_bci_plt <- reactive ({
+    if("Habitat" %in% input$bci_var){
+      plot_out <- plot_grid(bc_habt_plotD, bc_habt_plotH, bc_habt_plotE, nrow=1)
+      plot_out   }
+  })
+  str_bci_plt <- reactive ({
+    if("Stream" %in% input$bci_var){
+      plot_out <- plot_grid(bc_strm_plotD, bc_strm_plotH, bc_strm_plotE, nrow=1)
+      plot_out  }
+  })   
+  
+  
+  # Make a list of plots and print out plots based on which ones were requested 
+  bci_plot_list <- reactive({
+    list(age_bci_plt(),habt_bci_plt(), str_bci_plt())
+  })
+  #plot_grid() is used to combine multiple plots into one.
+  bci_plots_print <- reactive({
+    plot_grid(age_bci_plt(),habt_bci_plt(), str_bci_plt(), ncol = 1) 
+  })
+ 
+  
+  plot_variables <- reactive({
+    if("dune_vg" %in% input$dataset){
+      dn_plots_print()}
+    else if("mite_vg" %in% input$dataset){
+      mt_plots_print()}
+    else if("BCI_vg" %in% input$dataset){
+      bci_plots_print()}
+  })
+  output$plots = renderPlot({
+    plot_variables()
+  })
+}
 
 shinyApp(ui = ui, server = server)
