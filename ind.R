@@ -1,18 +1,18 @@
 
 ########### Sp Div Functions for the outcome TABLE:####################
 
-
 ##########################
 ## choice: dune dataset ##
 ##########################
-dataset <- read.csv("D:...Spdiv/SpDiv_ApProject/data/dune.csv")
+dataset <- dune_vg
 
-# N = abundance of each sample;total number of individuals of a sample/site
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+N <- apply(dataset[ ,- 1:-6], 1,sum) # sum of non-zero sp columns, except the first 6 variables columns
 data.frame(N)
+
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,- 1:-6] > 0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
+
 
 ## Menhinick (Mn)
 Menhinick <- function (S,N){
@@ -42,21 +42,123 @@ Od <- round(Od,2)
 Od
 # OUTPUT TABLE #
 ########### #Combine all indices #####
-Index <- data.frame(dataset$sample, N, S, Mg, Mn, Od)
-setnames(Index, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
-dn_richInd <- datatable(Index)%>%
-  formatStyle(c('Mg','Mn','Od'),  background = '#c6dbef')  # formatting table style
+Index_r_dn <- data.frame(dataset[,1:6], N, S, Mg, Mn, Od)
+
+dn_richInd <- datatable(Index_r_dn)%>%
+  formatStyle(c('Mg','Mn','Od'),  background = '#c6dbef')# formatting table style
+
+
+##  PLOTS dune
+
+
+### variable Moisture.dune: there are 5 levels of moisture
+dn_moist_plotMg <- ggplot(Index_r_dn,aes(x= Moisture, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 4), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+dn_moist_plotMn <- ggplot(Index_r_dn,aes(x= Moisture, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,3), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+dn_moist_plotOd <- ggplot(Index_r_dn,aes(x=Moisture, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,10), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+### PLOT variable Management.dune
+dn_mang_plotMg <-  ggplot(Index_r_dn, aes(x= Management, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 4), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+dn_mang_plotMn <-  ggplot(Index_r_dn, aes(x= Management, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,3), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+dn_mang_plotOd <-  ggplot(Index_r_dn, aes(x= Management, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,10), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+### variable Use.dune
+dn_use_plotMg <-  ggplot(Index_r_dn,aes(x= Use, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 4), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+dn_use_plotMn <-  ggplot(Index_r_dn,aes(x= Use, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,3), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+dn_use_plotOd <-  ggplot(Index_r_dn,aes(x=Use, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,10), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+### variable Manure.dune: 
+dn_manu_plotMg <-  ggplot(Index_r_dn,aes(x= Manure, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 4), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+dn_manu_plotMn <-  ggplot(Index_r_dn,aes(x= Manure, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,3), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+dn_manu_plotOd <-  ggplot(Index_r_dn,aes(x=Manure, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,10), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 
 
 ###########################
 ### choice: Mite dataset ##
 ###########################
-dataset <- read.csv("D:...Spdiv/SpDiv_ApProject/data/mite.csv")
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+dataset <- mite_vg ## call data as dataset to apply the functions
+N <- apply(dataset[ ,- 1:-6], 1,sum) # sum of non-zero sp columns, except the first 6 variables columns
 data.frame(N)
+
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,- 1:-6] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
+
 
 ## Menhinick (Mn)
 Menhinick <- function (S,N){
@@ -86,19 +188,92 @@ Od <- round(Od,2)
 Od
 # OUTPUT TABLE #
 ########### #Combine all indices #####
-Index <- data.frame(dataset$sample, N, S, Mg, Mn, Od)
-setnames(Index, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
-mt_richInd <- datatable(Index)%>%
+Index_r_mt <- data.frame(dataset[,1:6], N, S, Mg, Mn, Od)
+
+mt_richInd <- datatable(Index_r_mt)%>%
   formatStyle( c('Mg','Mn','Od'),  background = '#c6dbef') # formatting table style
+mt_richInd 
+
+## PLots MITE
+
+### PLOT variable Substrate. Mite
+mt_subs_plotMg <- ggplot(Index_r_mt, aes(x= Substrate, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,6), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+mt_subs_plotMn <-  ggplot(Index_r_mt, aes(x= Substrate, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,4), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+mt_subs_plotOd <- ggplot(Index_r_mt, aes(x= Substrate, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 12), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+### variable Shrub.mite
+mt_shru_plotMg <- ggplot(Index_r_mt, aes(x= Shrub, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,6), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+mt_shru_plotMn <- ggplot(Index_r_mt, aes(x= Shrub, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,4), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+mt_shru_plotOd <- ggplot(Index_r_mt, aes(x=Shrub, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 12), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+
+### variable Topo.mite: 
+mt_topo_plotMg <-  ggplot(Index_r_mt, aes(x= Topo, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,6), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+mt_topo_plotMn <- ggplot(Index_r_mt, aes(x= Topo, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,4), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+mt_topo_plotOd <-  ggplot(Index_r_mt, aes(x=Topo, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 12), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 
 ###########################
 ### choice: BCI dataset ##
 ###########################
-dataset <- read.csv("D:...Spdiv/SpDiv_ApProject/data/vegan.BCI.csv")
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
+dataset <- BCI_vg[, -c(2,3,4,5,7)] ## call data as dataset to apply the functions and DELETE non-variation env.data from the row dataset
+
+N <- apply(dataset[ ,- 1:-5], 1,sum) # sum of non-zero sp columns, except the first 6 variables columns
 data.frame(N)
+
 ## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
+S <- apply(dataset[,- 1:-5] >0,1, sum) #sum up the number of non-zero entries per row (1)
 data.frame(S)
 
 ## Menhinick (Mn)
@@ -129,10 +304,78 @@ Od <- round(Od,2)
 Od
 # OUTPUT TABLE #
 ########### #Combine all indices #####
-Index <- data.frame(dataset$sample, N, S, Mg, Mn, Od)
-setnames(Index, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
+Index <- data.frame(dataset[,1:5], N, S, Mg, Mn, Od)
+
 bc_richInd <- datatable(Index) %>%
   formatStyle( c('Mg','Mn','Od'),  background = '#c6dbef') # formatting table style
+bc_richInd
+
+## PLot AGE.CAT BCI
+bc_age_plotMg <- ggplot(Index, aes(x= Age.cat, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(12,18), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+bc_age_plotMn <- ggplot(Index, aes(x= Age.cat, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,6), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+bc_age_plotOd <- ggplot(Index, aes(x= Age.cat, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(30, 40), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+## PLot Habitat BCI
+bc_habt_plotMg <- ggplot(Index, aes(x= Habitat, y = Mg)) + # changing the Index
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(12,18), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+bc_habt_plotMn <- ggplot(Index, aes(x= Habitat, y = Mn)) + # changing the Index
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,6), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+bc_habt_plotOd <- ggplot(Index, aes(x= Habitat, y = Od)) + # changing the Index
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(30, 40), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+## PLot STREAM BCI
+bc_strm_plotMg <- ggplot(Index, aes(x= Stream, y = Mg)) + 
+  geom_boxplot(fill = "#ffeda0", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(12,18), name="Margalef (Mg)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+bc_strm_plotMn <- ggplot(Index, aes(x= Stream, y = Mn)) + 
+  geom_boxplot(fill = "#a1d99b", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(2,6), name="Menhinick (Mn)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
+bc_strm_plotOd <- ggplot(Index, aes(x= Stream, y = Od)) + 
+  geom_boxplot(fill = "#c6dbef", alpha=0.8) +
+  geom_jitter(size = 1.5, alpha = 0.5) +
+  theme_bw() +
+  scale_y_continuous(limits = c(30, 40), name="Odum (Od)") +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
+
 
 
 
