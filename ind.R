@@ -754,3 +754,10 @@ bc_strm_plotE <-  ggplot(bcDivIndex,aes(x=Stream, y = E)) + # changing the Index
   scale_y_continuous(limits = c(0, 1.2), name="Evenness (E)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))  
 
+
+########################################################################################################################
+#############                               RAREFACTION                           ######################################
+
+
+
+

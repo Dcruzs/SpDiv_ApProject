@@ -8,7 +8,7 @@ runtime: shiny
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-library(ecoevoapps)
+#library(ecoevoapps)
 library(kableExtra) #edit and style tables
 library(data.table)
 library(DT)
@@ -16,28 +16,30 @@ library(vegan)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-#library(plyr)
-#library(tidyverse)
+library(tidyverse)
+library(cowplot)
+library(patchwork)
+
 # ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
 Species Diversity metrics estimate the number of species in an environment. The Diversity of species is represented by a single number (index) that summarizes quantitative surveys performed in communities, sites, and samples. Several methods (indices) were developed and are frequently used in ecology and conservation studies to describe and compare biodiversity. 
 
-This App explores and compares some of the most common Biodiversity measurements, divided here into three categories. There are models based on Richness and its indices (Margalef, Menhinick and Odum), the proportional abundance of diversity indices (Simpson, Shannon, and Brillouin), and sampling size correction (Rarefaction). 
+This App explores and compares some of the most common Biodiversity measurements, divided here into three categories. There are models based on Richness and its indices (Margalef, Menhinick and Odum), the proportional abundance of diversity indices (Simpson, Shannon, and Evenness), and sampling size correction (Rarefaction). 
 
 Note: It is important to mention that these models account for discrete individuals from sexual reproduction species rather than asexual systems, whose approach counts for biomass and percent cover. 
 
 
 
-##  {.tabset}
+{.tabset}
 
-### Richness Index
+Richness Indices
 
 Species richness is simply the number of species found. It alone does not represent diversity. Communities can be described as having equal Richness but distinct diversity. For instance, green and blue communities have species 1 and 2 but differ in abundance (number of individuals). The abundance of both species in the green community is similar. It is more likely to find both species there than in the blue. Therefore, the green community is considered the most diverse.
 
 <img src="SpDiv_ApProject/www/comm_green_blue.png" alt="green blue example" style="height: 200px; width:200px;"/>
 
-We can confirm this difference in diversity using Margalef’s, Menhinick’s, and Odum’s indices, where S = richness; N =  total number of individuals in the sample; and In=  natural logarithm: 
+We can confirm this difference in diversity based on richness using Margalef’s, Menhinick’s, and Odum’s indices, where S = richness; N =  total number of individuals in the sample; and In=  natural logarithm: 
 
 \[
 Margalef's Index:
@@ -62,83 +64,211 @@ Od &=\frac{S}{logN}
 
 
 ```{r type 1, echo=FALSE}
-## The plan for the sidebar is to contain: 
-  ### 1) "fileInput()" for a dataset choice; 
-  ### 2) "helpText()" that will describe the data, its origin and geographic info; The descriptive stat 
-  ### 3) "checkboxinput()" summary table or plot. 
-
-sidebarLayout(
+ui <- fluidPage(
+  
+  sidebarLayout(
     sidebarPanel(
-      selectInput("dataset", "Pick a dataset:", 
-                  c("dune", "mite.data", "vegan.BCI")),
-      textOutput("description"),### add description of the dataset selected into the side panel instead of the mainPanel
-     
-         br(), ##add vertical space to the next widget 
+      selectInput("dataset", "Choose a dataset:", 
+                  c("dune_vg", "mite_vg", "BCI_vg")),
+      textOutput("description"), ### add description of the dataset selected into the side panel instead of the mainPanel
       
-      checkboxGroupInput("indx_outcome", label = "Calculate Indices?", ##choose to display the summary of the index
-                         choices = c("Yes" = "Yes"), selected = "Yes")
+      br(), ##add vertical space to the next widget 
+      
+      checkboxGroupInput("indx_outcome", label = "Calculate Indices by sample?", ##choose to display the summary of the index
+                         choices = c("Yes" = "Yes"), selected = "NUll") # NULL : ensure that none of the choices are pre-selected by default
+      
     ), 
     
     mainPanel(
       dataTableOutput("table"),
-      dataTableOutput("Index") #to display the summary of the index
+      hr(),
+      dataTableOutput("Index_samp"),
+      hr(),
       
-    
+      fluidRow(
+        column(3, 
+               uiOutput("richvar_panel")), ## a second panel conditioned to the choices of first panel.
+        
+        column(8,
+               plotOutput("plots_richvar", width = 1000, height = 1000))
+      )
     )
   )
+)
 
-## SHOW IN the main panel the following: 
-  ### 1) "DT:: renderDataTable() or "dataTableOutput()" as summary table of the Indices values also includes Abundance (N) and richness of each sample(site/row)
-  ### 2) "DT:: renderDataTable() or "dataTableOutput()" to display the data chosen 
-  ### 3) maybe  "renderPlot() or plotOutput()"  for a plot.
+##############################
 
-                   ########### Sp Div Functions for the outcome TABLE:####################
-#get the chosen dataset
-dataset <- input$dataset # through pathway oen csv and function located file "ind.R"
-
-# N = abundance of each sample;total number of individuals of a sample/site
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
-data.frame(N)
-## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
-data.frame(S)
-
-## Menhinick (Mn)
-Menhinick <- function (S,N){
-  index <- S/sqrt(N)
-  return(index)
+server <- function(input, output) {
+  
+  desc <- reactive({
+    switch(input$dataset, # need to edit the texts
+           "dune_vg" = "Vegetation data of the Dutch Dune Meadows, Terschelling, Netherlands. The study sampled 20 sites of 2x 2 square meters each and found 30 species of plants. For more details, check out R - Vegan package (Oksanen et al. 2022).",
+           "mite_vg" = "The data includes morpho-species of oribatid mites (also known as moss or beetle mites) found in the vicinity of Lac Geai (in Québec, Canada). Mites were collected from Sphagnum moss samples (5 cm in diameter and 7 cm deep). The table includes 70 samples (rows) and 35 mite species (columns). For more details, check out R - Vegan package (Oksanen et al. 2022).",
+           "BCI_vg" = "Floristic surveys on the Panamanian island of Barro Colorado (BCI) revealed the number of trees in a 1-hectare plot. The table shows the 225 species (columns) in 50 plots/samples (rows). Although the dataset contains nine environmental variables, the Index Table output only displays the columns whose observations varied between samples. See the R - Vegan package for more information (Oksanen et al. 2022)."
+    ) 
+  })
+  output$description = renderText(desc())
+  
+  
+  myCSV <- reactive({
+    switch(input$dataset,
+           "dune_vg" = dune_vg,
+           "mite_vg" = mite_vg,
+           "BCI_vg" = BCI_vg)
+  })
+  
+  ## How to add here the functions to connect the chosen dataset to its specific Index output Table? 
+  myindex <- reactive({if ("Yes" %in% input$indx_outcome) {
+    switch(input$dataset,
+           "dune_vg" = dn_richInd,
+           "mite_vg" = mt_richInd,
+           "BCI_vg" = bc_richInd)}
+    
+    
+  })
+  
+  
+  output$table = renderDT(myCSV(), options = list(
+    pageLength = 10)
+  )
+  
+  output$Index_samp = renderDT(myindex(), options = list(
+    pageLength = 10)
+  )
+  ### output of the second Panel
+  
+  output$richvar_panel <- renderUI({
+    if (input$dataset == "dune_vg") {
+      checkboxGroupInput("dune_var", label = "Plot Indices by Environmental characteristics:", ##choose to display the summary of the index by the environmental info
+                         choices = c("Moisture", "Management", "Use", "Manure"), 
+                         selected = "Moisture")
+      
+    }
+    else if (input$dataset == "mite_vg"){
+      checkboxGroupInput("mite_var", "Plot Diversity based on Environmental characteristics:", 
+                         c("Substrate", "Shrub", "Topo"),
+                         selected = "Substrate")
+      
+    }
+    else {
+      checkboxGroupInput("bci_var", label = "Plot Diversity based on Environmental characteristics:", 
+                         choices = c("Age.cat", "Habitat", "Stream"),
+                         selected = "Age.cat")
+    }
+  }) 
+  
+  #### PLOTS#############
+  
+  #### PLOTS DUNE
+  moist_dn_rich_plt <- reactive ({
+    if("Moisture" %in% input$dune_var){
+      wrap_plots(list(dn_moist_plotMg ,dn_moist_plotMn , dn_moist_plotOd), nrow = 1) }
+  })
+  
+  mang_dn_rich_plt <- reactive({
+    if("Management" %in% input$dune_var){
+      wrap_plots(list(dn_mang_plotMg,dn_mang_plotMn,dn_mang_plotOd), nrow = 1) }
+  })
+  
+  use_dn_rich_plt <- reactive ({
+    if("Use" %in% input$dune_var){
+      wrap_plots(list(dn_use_plotMg,dn_use_plotMn,dn_use_plotOd), nrow = 1) }
+  })
+  
+  manu_dn_rich_plt <- reactive ({
+    if("Manure" %in% input$dune_var){
+      wrap_plots(list(dn_manu_plotMg ,dn_manu_plotMn , dn_manu_plotOd), nrow = 1) }
+  })
+  
+  
+  ######## list of the bci variables and their indices
+  plot_list_dn <- reactive({
+    list(moist_dn_rich_plt(), mang_dn_rich_plt(),use_dn_rich_plt(),manu_dn_rich_plt())%>% 
+      discard(is.null)
+  })
+  
+  dn_richplots_print<- reactive({
+    wrap_plots(plot_list_dn(), ncol = 1)
+  })
+  
+  #### PLOTS MITE
+  
+  sub_mt_rich_plt <- reactive({
+    if("Substrate" %in% input$mite_var){
+      wrap_plots(list(mt_subs_plotMg ,mt_subs_plotMn, mt_subs_plotOd), nrow = 1) }
+  })
+  
+  shr_mt_rich_plt <- reactive ({
+    if("Shrub" %in% input$mite_var){
+      wrap_plots(list(mt_shru_plotMg, mt_shru_plotMn,mt_shru_plotOd ), nrow = 1) }
+  })
+  
+  topo_mt_rich_plt <- reactive ({
+    if("Topo" %in% input$mite_var){
+      wrap_plots(list(mt_topo_plotMg , mt_topo_plotMn, mt_topo_plotOd), nrow = 1) }
+  })
+  
+  ######## list of the bci variables and their indices
+  plot_list_mt <- reactive({
+    list(sub_mt_rich_plt(),shr_mt_rich_plt(),topo_mt_rich_plt())%>% 
+      discard(is.null)
+  })
+  
+  mt_richplots_print <- reactive({
+    wrap_plots(plot_list_mt(), ncol = 1)
+  })
+  
+  #### PLOTS BCI 
+  
+  age_bci_rich_plt <- reactive({
+    if("Age.cat" %in% input$bci_var){
+      wrap_plots(list(bc_age_plotMg,bc_age_plotMn, bc_age_plotOd), nrow = 1) }
+  })
+  
+  habt_bci_rich_plt <- reactive ({
+    if("Habitat" %in% input$bci_var){
+      wrap_plots(list(bc_habt_plotMg,bc_habt_plotMn, bc_habt_plotOd), nrow = 1) }
+  })
+  
+  str_bci_rich_plt <- reactive ({
+    if("Stream" %in% input$bci_var){
+      wrap_plots(list(bc_strm_plotMg,bc_strm_plotMn, bc_strm_plotOd), nrow = 1) }
+  })
+  
+  ######## list of the bci variables and their indices
+  plot_list_bc <- reactive({
+    list(age_bci_rich_plt(),habt_bci_rich_plt(),str_bci_rich_plt())%>% 
+      discard(is.null)
+  })
+  
+  bci_richplots_print <- reactive({
+    wrap_plots(plot_list_bc(), ncol = 1)
+  })
+  
+  
+  
+  ##### Putput plots based on the dataset chosen
+  plot_rich_variables <- reactive({
+    if("dune_vg" %in% input$dataset){
+      dn_richplots_print()}
+    else if("mite_vg" %in% input$dataset){
+      mt_richplots_print()}
+    else if("BCI_vg" %in% input$dataset){
+      bci_richplots_print()}
+  })
+  output$plots_richvar = renderPlot({
+    plot_rich_variables()
+  })
+  
+  
 }
-Mn <- Menhinick(S,N) 
-Mn <- round(Mn,2)
-Mn
 
-## Margalef (Mg)
-Margalef <- function (S,N){
-  index <- (S-1)/log(N)
-  return(index)
-}
-Mg <- Margalef(S,N)
-Mg <-round(Mg,2)
-Mg
 
-#checking mine function for Odum
-Odum <- function(S, N){
-    index <- S/log10(N)
-  return(index)
-}
-Od <- Odum(S,N)
-Od <- round(Od,2)
-Od
-                              # OUTPUT TABLE #
-                ########### #Combine all indices #####
-Index <- data.frame(dataset$sample, N, S, Mg, Mn, Od)
-setnames(Index, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
-richInd <- datatable(Index)
-richInd
+shinyApp(ui = ui, server = server)
 ```
 
 
-### Diversity Index
+Diversity Index
  
 The diversity indices relate the total abundance(N) with the abundance of each species (ni) to account for the proportion of species within the sample (pi = ni/N)...
 
@@ -192,68 +322,209 @@ kable(x = param_df, format = "html",
 ```{r, echo = F}
 ui <- fluidPage(
   
-  
   sidebarLayout(
+    
+    
     sidebarPanel(
       selectInput("dataset", "Choose a dataset:", 
-                  c("dune", "mite.data", "vegan.BCI")),
+                  c("dune_vg", "mite_vg", "BCI_vg")),
       textOutput("description"), ### add description of the dataset selected into the side panel instead of the mainPanel
       
       br(), ##add vertical space to the next widget 
       
       checkboxGroupInput("indx_outcome", label = "Calculates Indices?", ##choose to display the summary of the index
-                         choices = c("Yes" = "Yes"), selected = "Yes")
+                         choices = c("Yes" = "Yes"), selected = "No")
     ), 
     
     mainPanel(
       dataTableOutput("table"),
-      dataTableOutput("spdiv_Index") 
+      
+      hr(),
+      
+      dataTableOutput("spdiv_Index"),
+      hr(),
+      
+      fluidRow(
+        column(3,
+               uiOutput("var_panel")), ## a second panel conditioned to the choices of first panel.
+        
+        column(8,
+               plotOutput("plots", width = 1000, height = 1000))
+      )
       
       
-    )
+    ) 
   )
 )
+###########################
 
-  ########### Diversity Index Functions for the outcome TABLE:####################
-# N = abundance of each sample;total number of individuals of a sample/site
-N <- apply(dataset[ ,-1], 1,sum)# measure the number of indiv. per sites (sample)
-data.frame(N)
-## CALCULATE REACHNESS: # S is equal to Richness (R), counts the number of species recorded per site
-S <- apply(dataset[,-1] >0,1, sum) #sum up the number of non-zero entries per row (1)
-data.frame(S)
+server <- function(input, output) {
+  
+  desc <- reactive({
+    switch(input$dataset, # need to edit the texts
+           "dune_vg" = "Vegetation data of the Dutch Dune Meadows, Terschelling, Netherlands. The study sampled 20 sites of 2x 2 square meters each and found 30 species of plants. For more details, check out R - Vegan package (Oksanen et al. 2022).",
+           "mite_vg" = "The data includes morpho-species of oribatid mites (also known as moss or beetle mites) found in the vicinity of Lac Geai (in Québec, Canada). Mites were collected from Sphagnum moss samples (5 cm in diameter and 7 cm deep). The table includes 70 samples (rows) and 35 mite species (columns). For more details, check out R - Vegan package (Oksanen et al. 2022).",
+           "BCI_vg" = "Floristic surveys on the Panamanian island of Barro Colorado (BCI) revealed the number of trees in a 1-hectare plot. The table shows the 225 species (columns) in 50 plots/samples (rows). Although the dataset contains nine environmental variables, the Index Table output only displays the columns whose observations varied between samples. See the R - Vegan package for more information (Oksanen et al. 2022)."
+    ) 
+  })
+  
+  output$description = renderText(desc())
+  
+  
+  myCSV <- reactive({
+    switch(input$dataset,
+           "dune_vg" = dune_vg,
+           "mite_vg" = mite_vg,
+           "BCI_vg" = BCI_vg)
+  })
+  
+  ## How to add here the functions to connect the chosen dataset to its specific Index output Table? 
+  my_spdivindx <- reactive({if ("Yes" %in% input$indx_outcome) {
+    switch(input$dataset,
+           "dune_vg" = dn_spdiv_index,
+           "mite_vg" = mt_spdiv_index,
+           "BCI_vg" = bc_spdiv_index)}
+  })
+  
+  
+  output$table = renderDT(myCSV(), options = list(
+    pageLength = 10)
+  )
+  
+  output$spdiv_Index = renderDT(my_spdivindx(), options = list(
+    pageLength = 10)
+  )
+  
+  ### output of the second Panel
+  
+  output$var_panel <- renderUI({
+    if (input$dataset == "dune_vg") {
+      checkboxGroupInput("dune_var", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
+                         choices = c("Moisture", "Management", "Use", "Manure"),
+                         selected = "Moisture") 
+      
+    }
+    else if (input$dataset == "mite_vg"){
+      checkboxGroupInput("mite_var", "Plot Diversity based on Environmental characteristics:", 
+                         c("Substrate", "Shrub", "Topo"),
+                         selected = "Substrate")
+      
+    }
+    else {
+      checkboxGroupInput("bci_var", label = "Plot Diversity based on Environmental characteristics:", 
+                         choices = c("Age.cat", "Habitat", "Stream"),
+                         selected = "Age.cat")
+    }
+  })
+  
+  ## Make plots DUNE variables
+  ### variable Moisture.dune: 
+  moist_dune_plt <- reactive ({
+    if("Moisture" %in% input$dune_var){
+      wrap_plots(list(dn_moist_plotD, dn_moist_plotH, dn_moist_plotE), nrow=1) }
+  }) 
+  ### PLOT variable Management.dune
+  mang_dune_plt <- reactive ({
+    if("Management" %in% input$dune_var){
+      wrap_plots(list(dn_mang_plotD , dn_mang_plotH, dn_mang_plotE), nrow=1) }
+  })
+  ### variable Use.dune
+  use_dune_plt <- reactive ({
+    if("Use" %in% input$dune_var){
+      wrap_plots(list(dn_use_plotD, dn_use_plotH, dn_use_plotE), nrow=1) }
+  })
+  ## variable Manure.dune: 
+  manu_dune_plt <- reactive ({
+    if("Manure" %in% input$dune_var){
+      wrap_plots(list(dn_manu_plotD, dn_manu_plotH, dn_manu_plotE), nrow=1) }
+  })   
+  
+  # Make a list of plots and print out plots based on which ones were requested 
+  dn_plot_list <- reactive({
+    list(moist_dune_plt(),mang_dune_plt (), use_dune_plt(),manu_dune_plt()) %>% 
+      discard(is.null)
+  })
+  #plot_grid() is used to combine multiple plots into one.
+  dn_plots_print <- reactive({
+    wrap_plots(dn_plot_list(), ncol = 1) 
+  })
+  
+  
+  ##########################
+  ## Make plots MITE variables
+  sub_mite_plt <- reactive ({
+    if("Substrate" %in% input$mite_var){
+      wrap_plots(list(mt_subs_plotD, mt_subs_plotH, mt_subs_plotE), nrow=1) }
+  })
+  shr_mite_plt <- reactive ({
+    if("Shrub" %in% input$mite_var){
+      wrap_plots(list(mt_shru_plotD, mt_shru_plotH, mt_shru_plotE), nrow=1) }
+  })   
+  topo_mite_plt <- reactive ({
+    if("Topo" %in% input$mite_var){
+      wrap_plots(list(mt_topo_plotD, mt_topo_plotH, mt_topo_plotE), nrow=1) }
+  })  
+  
+  # Make a list of plots and print out plots based on which ones were requested 
+  mt_plot_list <- reactive({
+    list(sub_mite_plt(),shr_mite_plt(), topo_mite_plt()) %>% 
+      discard(is.null)
+  })
+  #plot_grid() is used to combine multiple plots into one.
+  mt_plots_print <- reactive({
+    wrap_plots(mt_plot_list(), ncol = 1)  
+  })
+  
+  
+  ########################## 
+  ## Make plots BCI variables
+  age_bci_plt <- reactive ({
+    if("Age.cat" %in% input$bci_var){
+      wrap_plots(list(bc_age_plotD, bc_age_plotH, bc_age_plotE), nrow=1) }
+  })  
+  
+  habt_bci_plt <- reactive ({
+    if("Habitat" %in% input$bci_var){
+      wrap_plots(list(bc_habt_plotD, bc_habt_plotH, bc_habt_plotE), nrow=1) }
+  })
+  
+  str_bci_plt <- reactive ({
+    if("Stream" %in% input$bci_var){
+      wrap_plots(list(bc_strm_plotD, bc_strm_plotH, bc_strm_plotE), nrow=1) }
+  })   
+  
+  
+  # Make a list of plots and print out plots based on which ones were requested 
+  bci_plot_list <- reactive({
+    list(age_bci_plt(),habt_bci_plt(), str_bci_plt()) %>% 
+      discard(is.null)
+  })
+  #plot_grid() is used to combine multiple plots into one.
+  bci_plots_print <- reactive({
+    wrap_plots(bci_plot_list(), ncol = 1)
+  })
+  
+  
+  plot_variables <- reactive({
+    if("dune_vg" %in% input$dataset){
+      dn_plots_print()}
+    else if("mite_vg" %in% input$dataset){
+      mt_plots_print()}
+    else if("BCI_vg" %in% input$dataset){
+      bci_plots_print()}
+  })
+  output$plots = renderPlot({
+    plot_variables()
+  })
+}
 
-## Simpson's Index (Ds), using vegan:
-D <- diversity(dataset[-1], index = "simpson")
-D <- round(D,2)
-D
+shinyApp(ui = ui, server = server)
+```
 
-## Brillouin Index (Hb), ref (https://www.flutterbys.com.au/stats/tut/tut13.2.html):
-brillouin <- function(x) {
-  N <- sum(x)
-  (log(factorial(N)) - sum(log(factorial(x))))/N
- }
-B <- apply(dataset[,-1],1,brillouin)
-B <- round(B,2)
-B
-## Shannon's Index (H'), using vegan::
-H <- diversity(dataset[-1], index = "shannon")
-H < round(H,2) # round() NOT working here :(
-H
 
-#### Species Evenness, correction /J' of Pielou (1975):
-flut <- dataset[-1]# must eliminate the categorical column and let only the numeric values
-# using Vegan
-E <- H/log(specnumber(flut))
-E <- round(E, 2)
-E
+Rarefaction
 
-                                # OUTPUT TABLE #
-                ########### #Combine all indices (D, B, H', E) #####
-DivIndex <- data.frame(dataset$sample, N, S, D, B, H, E)
-setnames(DivIndex, old = c("dataset.sample"), new = c("Sample"), skip_absent = TRUE) #change the name of the column "sample"
-data_spdiv_index <- datatable(DivIndex) %>%
-  formatStyle( c('D','B','H', 'E'),  background = "palegreen") # formatting table style
-data_spdiv_index
+```{r}
 
 ```
 

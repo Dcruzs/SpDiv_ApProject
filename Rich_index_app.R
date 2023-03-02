@@ -1,9 +1,5 @@
 ui <- fluidPage(
   
-  
-  titlePanel("Downloading Dataset of Species Diversity"), # Does not need a title
-  
-  
   sidebarLayout(
     sidebarPanel(
       selectInput("dataset", "Choose a dataset:", 
@@ -77,7 +73,7 @@ server <- function(input, output) {
   
   output$richvar_panel <- renderUI({
     if (input$dataset == "dune_vg") {
-      checkboxGroupInput("dune_var", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
+      checkboxGroupInput("dune_var", label = "Plot Indices by Environmental characteristics:", ##choose to display the summary of the index by the environmental info
                          choices = c("Moisture", "Management", "Use", "Manure"), 
                          selected = "Moisture")
       

@@ -59,3 +59,4 @@ bc <- BCI %>%
 
 #merge two datasets
 BCI_vg <- full_join(x = benv, y = bc, by ='Sample')
+
