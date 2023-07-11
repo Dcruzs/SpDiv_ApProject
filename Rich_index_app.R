@@ -1,5 +1,9 @@
 ui <- fluidPage(
   
+  
+  # Does not need a title
+  
+  
   sidebarLayout(
     sidebarPanel(
       selectInput("dataset", "Choose a dataset:", 
@@ -20,12 +24,12 @@ ui <- fluidPage(
       hr(),
       
       fluidRow(
-        column(3, 
+        column(2, 
                uiOutput("richvar_panel")), ## a second panel conditioned to the choices of first panel.
         
-        column(8,
-               plotOutput("plots_richvar", width = 1000, height = 1000))
-      )
+        column(10,
+              plotOutput("plots_richvar", width = 1000, height = 1000))
+       )
     )
   )
 )
@@ -73,20 +77,20 @@ server <- function(input, output) {
   
   output$richvar_panel <- renderUI({
     if (input$dataset == "dune_vg") {
-      checkboxGroupInput("dune_var", label = "Plot Indices by Environmental characteristics:", ##choose to display the summary of the index by the environmental info
-                         choices = c("Moisture", "Management", "Use", "Manure"), 
+      checkboxGroupInput("dune_var", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
+                         choices = c("A1", "Moisture", "Management", "Use", "Manure"), 
                          selected = "Moisture")
       
     }
     else if (input$dataset == "mite_vg"){
       checkboxGroupInput("mite_var", "Plot Diversity based on Environmental characteristics:", 
-                         c("Substrate", "Shrub", "Topo"),
+                         c("SubsDens", "WatrCont", "Substrate", "Shrub", "Topo"),
                          selected = "Substrate")
       
     }
     else {
       checkboxGroupInput("bci_var", label = "Plot Diversity based on Environmental characteristics:", 
-                         choices = c("Age.cat", "Habitat", "Stream"),
+                         choices = c("UTM.EW", "UTM.NS", "Age.cat", "Habitat", "Stream", "EnvHet"),
                          selected = "Age.cat")
     }
   }) 
@@ -94,30 +98,36 @@ server <- function(input, output) {
   #### PLOTS#############
   
   #### PLOTS DUNE
+  a1_dn_rich_plt <- reactive ({
+    if("A1" %in% input$dune_var){
+      wrap_plots(list(dn_a1_plotS, dn_a1_plotMg,  dn_a1_plotMn), nrow = 1) }
+  })
+  
   moist_dn_rich_plt <- reactive ({
     if("Moisture" %in% input$dune_var){
-      wrap_plots(list(dn_moist_plotMg ,dn_moist_plotMn , dn_moist_plotOd), nrow = 1) }
+      wrap_plots(list(dn_moist_plotS, dn_moist_plotMg, dn_moist_plotMn), nrow = 1) }
   })
   
   mang_dn_rich_plt <- reactive({
     if("Management" %in% input$dune_var){
-      wrap_plots(list(dn_mang_plotMg,dn_mang_plotMn,dn_mang_plotOd), nrow = 1) }
+      wrap_plots(list(dn_mang_plotS, dn_mang_plotMg, dn_mang_plotMn), nrow = 1) }
   })
   
   use_dn_rich_plt <- reactive ({
     if("Use" %in% input$dune_var){
-      wrap_plots(list(dn_use_plotMg,dn_use_plotMn,dn_use_plotOd), nrow = 1) }
+      wrap_plots(list(dn_use_plotS, dn_use_plotMg, dn_use_plotMn), nrow = 1) }
   })
   
   manu_dn_rich_plt <- reactive ({
     if("Manure" %in% input$dune_var){
-      wrap_plots(list(dn_manu_plotMg ,dn_manu_plotMn , dn_manu_plotOd), nrow = 1) }
+      wrap_plots(list(dn_manu_plotS, dn_manu_plotMg, dn_manu_plotMn), nrow = 1) }
   })
+  
   
   
   ######## list of the bci variables and their indices
   plot_list_dn <- reactive({
-    list(moist_dn_rich_plt(), mang_dn_rich_plt(),use_dn_rich_plt(),manu_dn_rich_plt())%>% 
+    list(a1_dn_rich_plt(),moist_dn_rich_plt(), mang_dn_rich_plt(),use_dn_rich_plt(),manu_dn_rich_plt())%>% 
       discard(is.null)
   })
   
@@ -127,24 +137,34 @@ server <- function(input, output) {
   
   #### PLOTS MITE
   
+  dens_mt_rich_plt <- reactive({
+    if("SubsDens" %in% input$mite_var){
+      wrap_plots(list(mt_den_plotS, mt_den_plotMg, mt_den_plotMn), nrow = 1) }
+  })
+  
+  wtr_mt_rich_plt <- reactive({
+    if ("WatrCont" %in% input$mite_var){
+      wrap_plots(list(mt_wt_plotS, mt_wt_plotMg, mt_wt_plotMn), nrow = 1)}
+  })
+  
   sub_mt_rich_plt <- reactive({
     if("Substrate" %in% input$mite_var){
-      wrap_plots(list(mt_subs_plotMg ,mt_subs_plotMn, mt_subs_plotOd), nrow = 1) }
+      wrap_plots(list(mt_subs_plotS, mt_subs_plotMg ,mt_subs_plotMn), nrow = 1) }
   })
   
   shr_mt_rich_plt <- reactive ({
     if("Shrub" %in% input$mite_var){
-      wrap_plots(list(mt_shru_plotMg, mt_shru_plotMn,mt_shru_plotOd ), nrow = 1) }
+      wrap_plots(list(mt_shru_plotS, mt_shru_plotMg, mt_shru_plotMn), nrow = 1) }
   })
   
   topo_mt_rich_plt <- reactive ({
     if("Topo" %in% input$mite_var){
-      wrap_plots(list(mt_topo_plotMg , mt_topo_plotMn, mt_topo_plotOd), nrow = 1) }
+      wrap_plots(list(mt_topo_plotS, mt_topo_plotMg , mt_topo_plotMn), nrow = 1) }
   })
   
   ######## list of the bci variables and their indices
   plot_list_mt <- reactive({
-    list(sub_mt_rich_plt(),shr_mt_rich_plt(),topo_mt_rich_plt())%>% 
+    list(dens_mt_rich_plt(), wtr_mt_rich_plt(), sub_mt_rich_plt(),shr_mt_rich_plt(),topo_mt_rich_plt())%>% 
       discard(is.null)
   })
   
@@ -153,25 +173,38 @@ server <- function(input, output) {
   })
   
   #### PLOTS BCI 
+  ew_bci_rich_plt <- reactive({
+    if("UTM.EW" %in% input$bci_var){
+      wrap_plots(list(bc_ew_plotS, bc_ew_plotMg,bc_ew_plotMn), nrow = 1) }
+  })
+  
+  ns_bci_rich_plt <- reactive({
+    if("UTM.NS" %in% input$bci_var){
+      wrap_plots(list(bc_ns_plotS, bc_ns_plotMg,bc_ns_plotMg), nrow = 1) }
+  })
   
   age_bci_rich_plt <- reactive({
     if("Age.cat" %in% input$bci_var){
-      wrap_plots(list(bc_age_plotMg,bc_age_plotMn, bc_age_plotOd), nrow = 1) }
+      wrap_plots(list(bc_age_plotS, bc_age_plotMg,bc_age_plotMn), nrow = 1) }
   })
   
   habt_bci_rich_plt <- reactive ({
     if("Habitat" %in% input$bci_var){
-      wrap_plots(list(bc_habt_plotMg,bc_habt_plotMn, bc_habt_plotOd), nrow = 1) }
+      wrap_plots(list(bc_habt_plotS, bc_habt_plotMg,bc_habt_plotMn), nrow = 1) }
   })
   
   str_bci_rich_plt <- reactive ({
     if("Stream" %in% input$bci_var){
-      wrap_plots(list(bc_strm_plotMg,bc_strm_plotMn, bc_strm_plotOd), nrow = 1) }
+      wrap_plots(list(bc_strm_plotS, bc_strm_plotMg,bc_strm_plotMn), nrow = 1) }
   })
   
+  het_bci_rich_plt <- reactive({
+    if("EnvHet" %in% input$bci_var){
+      wrap_plots(list(bc_het_plotS, bc_het_plotMg, bc_het_plotMn), nrow = 1) }
+  })
   ######## list of the bci variables and their indices
   plot_list_bc <- reactive({
-    list(age_bci_rich_plt(),habt_bci_rich_plt(),str_bci_rich_plt())%>% 
+    list(ew_bci_rich_plt(), ns_bci_rich_plt(), age_bci_rich_plt(),habt_bci_rich_plt(),str_bci_rich_plt(), het_bci_rich_plt())%>% 
       discard(is.null)
   })
   
@@ -191,7 +224,7 @@ server <- function(input, output) {
       bci_richplots_print()}
   })
   output$plots_richvar = renderPlot({
-    plot_rich_variables()
+   plot_rich_variables()
   })
   
   

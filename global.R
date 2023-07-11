@@ -1,6 +1,6 @@
 library(shiny)
-library(DT)
 library(vegan) # ecology package
+library(DT)
 library(kableExtra) #edit and style tables
 library(data.table)
 library(dplyr)
@@ -9,54 +9,15 @@ library(tidyverse)
 library(ggplot2)
 library(cowplot)
 library(patchwork)
-
+library(ggplotify) # to convert ggplot into grob
+library(plotly)
+library(gghighlight) #  ggplot labels at the end of the line
 
 ###########
-data("dune")
-data("dune.env")
-
-
-denv <- dune.env %>%
-  mutate(Sample=1:20) %>% # add a Sample column
-  relocate(Sample) # move the sample column to the front
-
-dn <- dune %>%
-  mutate(Sample=1:20) %>% # add a Sample column
-  relocate(Sample) # move the sample column to the front
-
-#merge two datasets
-dune_vg <- full_join(x = denv, y = dn, by ='Sample')
-
-
-##########
-data("mite")
-data("mite.env")
-
-
-menv <- mite.env %>%
-  mutate(Sample=1:70) %>%# add a Sample column
-  relocate(Sample) # move the sample column to the front
-
-mt <- mite %>%
-  mutate(Sample=1:70) %>% # add a Sample column
-  relocate(Sample) # move the sample column to the front
-
-#merge two datasets
-mite_vg <- full_join(x = menv, y = mt, by ='Sample')
-
-
-####################################################
-data("BCI")
-data("BCI.env")
-
-benv <- BCI.env %>% 
-  mutate(Sample=1:50) %>% # add a Sample column
-  relocate(Sample)# move the sample column to the front
-
-bc <- BCI %>%
-  mutate(Sample=1:50) %>% # add a Sample column
-  relocate(Sample)# move the sample column to the front
-
-#merge two datasets
-BCI_vg <- full_join(x = benv, y = bc, by ='Sample')
-
+data("BCI", "BCI.env")
+data("dune", "dune.env")
+data("mite", "mite.env")
+# combine both dataset and make a column "Sample"
+dune_vg <- cbind(Sample = rownames(dune.env), dune.env, dune)
+BCI_vg  <- cbind(Sample = rownames(BCI.env), BCI.env, BCI)
+mite_vg <- cbind(Sample = rownames(mite.env), mite.env, mite)

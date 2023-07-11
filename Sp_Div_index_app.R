@@ -23,10 +23,10 @@ ui <- fluidPage(
       hr(),
       
       fluidRow(
-        column(3,
+        column(2,
                uiOutput("var_panel")), ## a second panel conditioned to the choices of first panel.
         
-        column(8,
+        column(10,
                plotOutput("plots", width = 1000, height = 1000))
       )
       
@@ -78,48 +78,53 @@ server <- function(input, output) {
   output$var_panel <- renderUI({
     if (input$dataset == "dune_vg") {
       checkboxGroupInput("dune_var", label = "Plot Diversity based on Environmental characteristics:", ##choose to display the summary of the index by the environmental info
-                         choices = c("Moisture", "Management", "Use", "Manure"),
+                         choices = c("A1", "Moisture", "Management", "Use", "Manure"),
                          selected = "Moisture") 
       
     }
     else if (input$dataset == "mite_vg"){
       checkboxGroupInput("mite_var", "Plot Diversity based on Environmental characteristics:", 
-                         c("Substrate", "Shrub", "Topo"),
+                         c("SubsDens","WatrCont", "Substrate", "Shrub", "Topo"),
                          selected = "Substrate")
       
     }
     else {
       checkboxGroupInput("bci_var", label = "Plot Diversity based on Environmental characteristics:", 
-                         choices = c("Age.cat", "Habitat", "Stream"),
+                         choices = c("UTM.EW", "UTM.NS", "Age.cat", "Habitat", "Stream", "EnvHet"),
                          selected = "Age.cat")
     }
   })
   
-  ## Make plots DUNE variables
+  ## Make plots DUNE variables\
+  ### variable A1.dune: 
+  a1_dune_plt <- reactive ({
+    if("A1" %in% input$dune_var){
+      wrap_plots(list(dn_a1_plotH, dn_a1_plotD, dn_a1_plotJ, dn_a1_plotDi), nrow=1) }
+  }) 
   ### variable Moisture.dune: 
   moist_dune_plt <- reactive ({
     if("Moisture" %in% input$dune_var){
-      wrap_plots(list(dn_moist_plotD, dn_moist_plotH, dn_moist_plotE), nrow=1) }
+      wrap_plots(list(dn_moist_plotH,dn_moist_plotD, dn_moist_plotJ, dn_moist_plotDi), nrow=1) }
   }) 
   ### PLOT variable Management.dune
   mang_dune_plt <- reactive ({
     if("Management" %in% input$dune_var){
-      wrap_plots(list(dn_mang_plotD , dn_mang_plotH, dn_mang_plotE), nrow=1) }
+      wrap_plots(list( dn_mang_plotH, dn_mang_plotD ,dn_mang_plotJ, dn_mang_plotDi), nrow=1) }
   })
   ### variable Use.dune
   use_dune_plt <- reactive ({
     if("Use" %in% input$dune_var){
-      wrap_plots(list(dn_use_plotD, dn_use_plotH, dn_use_plotE), nrow=1) }
+      wrap_plots(list( dn_use_plotH, dn_use_plotD, dn_use_plotJ, dn_use_plotDi), nrow=1) }
   })
   ## variable Manure.dune: 
   manu_dune_plt <- reactive ({
     if("Manure" %in% input$dune_var){
-      wrap_plots(list(dn_manu_plotD, dn_manu_plotH, dn_manu_plotE), nrow=1) }
+      wrap_plots(list( dn_manu_plotH, dn_manu_plotD, dn_manu_plotJ, dn_manu_plotDi), nrow=1) }
   })   
   
   # Make a list of plots and print out plots based on which ones were requested 
   dn_plot_list <- reactive({
-    list(moist_dune_plt(),mang_dune_plt (), use_dune_plt(),manu_dune_plt()) %>% 
+    list(a1_dune_plt(), moist_dune_plt(),mang_dune_plt (), use_dune_plt(),manu_dune_plt()) %>% 
       discard(is.null)
   })
   #plot_grid() is used to combine multiple plots into one.
@@ -130,22 +135,30 @@ server <- function(input, output) {
   
   ##########################
   ## Make plots MITE variables
+  den_mite_plt <- reactive ({
+    if("SubsDens" %in% input$mite_var){
+      wrap_plots(list(mt_den_plotH, mt_den_plotD, mt_den_plotJ, mt_den_plotDi), nrow=1) }
+  })
+  wt_mite_plt <- reactive ({
+    if("WatrCont" %in% input$mite_var){
+      wrap_plots(list(mt_wt_plotH, mt_wt_plotD, mt_wt_plotJ, mt_wt_plotDi), nrow=1) }
+  })
   sub_mite_plt <- reactive ({
     if("Substrate" %in% input$mite_var){
-      wrap_plots(list(mt_subs_plotD, mt_subs_plotH, mt_subs_plotE), nrow=1) }
+      wrap_plots(list( mt_subs_plotH, mt_subs_plotD, mt_subs_plotJ,mt_subs_plotDi), nrow=1) }
   })
   shr_mite_plt <- reactive ({
     if("Shrub" %in% input$mite_var){
-      wrap_plots(list(mt_shru_plotD, mt_shru_plotH, mt_shru_plotE), nrow=1) }
+      wrap_plots(list( mt_shru_plotH, mt_shru_plotD, mt_shru_plotJ,mt_shru_plotDi), nrow=1) }
   })   
   topo_mite_plt <- reactive ({
     if("Topo" %in% input$mite_var){
-      wrap_plots(list(mt_topo_plotD, mt_topo_plotH, mt_topo_plotE), nrow=1) }
+      wrap_plots(list(mt_topo_plotH, mt_topo_plotD, mt_topo_plotJ, mt_topo_plotDi), nrow=1) }
   })  
   
   # Make a list of plots and print out plots based on which ones were requested 
   mt_plot_list <- reactive({
-    list(sub_mite_plt(),shr_mite_plt(), topo_mite_plt()) %>% 
+    list(den_mite_plt(), wt_mite_plt(), sub_mite_plt(),shr_mite_plt(), topo_mite_plt()) %>% 
       discard(is.null)
   })
   #plot_grid() is used to combine multiple plots into one.
@@ -156,25 +169,34 @@ server <- function(input, output) {
   
   ########################## 
   ## Make plots BCI variables
+  ew_bci_plt <- reactive ({
+    if("UTM.EW" %in% input$bci_var){
+      wrap_plots(list(bc_ew_plotH, bc_ew_plotD, bc_ew_plotJ, bc_ew_plotDi), nrow=1) }
+  }) 
+  ns_bci_plt <- reactive ({
+    if("UTM.NS" %in% input$bci_var){
+      wrap_plots(list(bc_ns_plotH, bc_ns_plotD, bc_ns_plotJ, bc_ns_plotDi), nrow=1) }
+  }) 
   age_bci_plt <- reactive ({
     if("Age.cat" %in% input$bci_var){
-      wrap_plots(list(bc_age_plotD, bc_age_plotH, bc_age_plotE), nrow=1) }
-  })  
-  
+      wrap_plots(list(bc_age_plotH, bc_age_plotD, bc_age_plotJ, bc_age_plotDi), nrow=1) }
+  }) 
   habt_bci_plt <- reactive ({
     if("Habitat" %in% input$bci_var){
-      wrap_plots(list(bc_habt_plotD, bc_habt_plotH, bc_habt_plotE), nrow=1) }
+      wrap_plots(list(bc_habt_plotH, bc_habt_plotD, bc_habt_plotJ, bc_habt_plotDi), nrow=1) }
   })
-  
   str_bci_plt <- reactive ({
     if("Stream" %in% input$bci_var){
-      wrap_plots(list(bc_strm_plotD, bc_strm_plotH, bc_strm_plotE), nrow=1) }
+      wrap_plots(list(bc_strm_plotH, bc_strm_plotD,bc_strm_plotJ, bc_strm_plotDi), nrow=1) }
   })   
-  
+  het_bci_plt <- reactive ({
+    if("EnvHet" %in% input$bci_var){
+      wrap_plots(list(bc_het_plotH, bc_het_plotD, bc_het_plotJ, bc_het_plotDi), nrow=1) }
+  })
   
   # Make a list of plots and print out plots based on which ones were requested 
   bci_plot_list <- reactive({
-    list(age_bci_plt(),habt_bci_plt(), str_bci_plt()) %>% 
+    list(ew_bci_plt(), ns_bci_plt(),age_bci_plt(),habt_bci_plt(), str_bci_plt(), het_bci_plt()) %>% 
       discard(is.null)
   })
   #plot_grid() is used to combine multiple plots into one.
