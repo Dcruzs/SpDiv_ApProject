@@ -1050,7 +1050,7 @@ plot_acc_bc <- ggplot(data = bc_acc_dt, aes(x = bc_acc.sites, y = bc_acc.richnes
 
 
 #########################################################################################################
-# RAREFACTION #
+                                      # RAREFACTION #
 #########################################################################################################
 
 # using vegan 
@@ -1061,5 +1061,14 @@ plot_acc_bc <- ggplot(data = bc_acc_dt, aes(x = bc_acc.sites, y = bc_acc.richnes
 
 
 
-### Rarecurve ( ): Make interactive to choose the steps 1 - 200
+### Richness Rarecurve( ): Make interactive to choose the steps 1 - 200
+# Custom color palette (replace col with your desired colors)
+col <- c("red", "blue", "green", "purple", "orange", "#525252", "#f768a1")
+
+# Create a list of environmental parameters
+env_params <- c(
+  "A1", "Moisture", "Management", "Use", "Manure", 
+  "SubsDens", "WatrCont", "Substrate", "Shrub", "Topo", 
+  "UTM.EW", "UTM.NS", "Age.cat", "Habitat", "Stream", "EnvHet")
+
 
