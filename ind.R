@@ -1,4 +1,28 @@
+library(shiny)
+library(vegan) # ecology package
+library(DT)
+library(kableExtra) #edit and style tables
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+library(patchwork)
+library(ggplotify) # to convert ggplot into grob
+library(plotly)
+library(gghighlight) #  ggplot labels at the end of the line
+
+
 ########### Sp Div Functions for the outcome TABLE:####################
+###########
+data("dune", "dune.env")
+data("mite", "mite.env")
+data("BCI", "BCI.env")
+# combine both dataset and make a column "Sample"
+dune_vg <- cbind(Sample = rownames(dune.env), dune.env, dune)
+mite_vg <- cbind(Sample = rownames(mite.env), mite.env, mite)
+BCI_vg  <- cbind(Sample = rownames(BCI.env), BCI.env, BCI)
 
 
 ##########################
@@ -137,24 +161,27 @@ dn_manu_plotMn <-  ggplot(Index_r_dn,aes(x= Manure, y = Mn)) + # changing the In
 
 # A1. dune
 dn_a1_plotS <- ggplot(data = Index_r_dn, aes(x= A1, y= S)) + 
-  labs(x = "Numeric vector of thickness of soil A1 horizon", y = "Richness") +
+  labs(x = "Thickness of soil A1 horizon", y = "Richness") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
+
 
 dn_a1_plotMg  <- ggplot(data = Index_r_dn, aes(x= A1, y= Mg)) + 
-  labs(x = "Numeric vector of thickness of soil A1 horizon", y = "Margalef (Mg)") +
+  labs(x = "Thickness of soil A1 horizon", y = "Margalef (Mg)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
+
 
 dn_a1_plotMn <-  ggplot(data = Index_r_dn, aes(x= A1, y= Mn)) + 
-  labs(x = "Numeric vector of thickness of soil A1 horizon", y = "Menhinick (Mn)") +
+  labs(x = "Thickness of soil A1 horizon", y = "Menhinick (Mn)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
-
-
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 ###########################
 ### choice: Mite dataset ##
@@ -267,8 +294,6 @@ mt_topo_plotMn <- ggplot(Index_r_mt, aes(x= Topo, y = Mn)) + # changing the Inde
   scale_y_continuous(limits = c(0,3), name="Menhinick (Mn)") +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
-
-
 # PLot the numerical variables
 
 # SubsDens. Mite
@@ -276,38 +301,44 @@ mt_den_plotS <- ggplot(data = Index_r_mt, aes(x= SubsDens, y= S)) +
   labs(x = "Substrate density (g/L)", y = "Richness") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_den_plotMg  <- ggplot(data = Index_r_mt, aes(x= SubsDens, y= Mg)) + 
   labs(x = "Substrate density (g/L)", y = "Margalef (Mg)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_den_plotMn <-  ggplot(data = Index_r_mt, aes(x= SubsDens, y= Mn)) + 
   labs(x = "Substrate density (g/L)", y = "Menhinick (Mn)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 # WatrCont. Mite
 mt_wt_plotS <- ggplot(data = Index_r_mt, aes(x= WatrCont, y= S)) + 
-  labs(x = "Water content of the substrate (g/L)", y = "Richness") +
+  labs(x = "Water content (g/L)", y = "Richness") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_wt_plotMg <- ggplot(data = Index_r_mt, aes(x= WatrCont, y= Mg)) + 
-  labs(x = "Water content of the substrate (g/L)", y = "Margalef (Mg)") +
+  labs(x = "Water content (g/L)", y = "Margalef (Mg)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_wt_plotMn <-  ggplot(data = Index_r_mt, aes(x= WatrCont, y= Mn)) + 
-  labs(x = "Water content of the substrate (g/L)", y = "Menhinick (Mn)") +
+  labs(x = "Water content (g/L)", y = "Menhinick (Mn)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 ###########################
 ### choice: BCI dataset ##
@@ -421,42 +452,48 @@ boxplot(Index_r_bc$UTM.EW)
 
 # UTM.EW. BCI
 bc_ew_plotS <- ggplot(data = Index_r_bc, aes(x= UTM.EW, y= S)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Richness") +
+  labs(x = "East-West coordinates", y = "Richness") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ew_plotMg <- ggplot(data = Index_r_bc, aes(x= UTM.EW, y= Mg)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Margalef (Mg)") +
+  labs(x = "East-West coordinates", y = "Margalef (Mg)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ew_plotMn <-  ggplot(data = Index_r_bc, aes(x= UTM.EW, y= Mn)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Menhinick (Mn)") +
+  labs(x = "East-West coordinates", y = "Menhinick (Mn)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 
 # UTM.NS. BCI
 bc_ns_plotS <- ggplot(data = Index_r_bc, aes(x= UTM.NS, y= S)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Richness") +
+  labs(x = "North-South coordinates", y = "Richness") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ns_plotMg <- ggplot(data = Index_r_bc, aes(x= UTM.NS, y= Mg)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Margalef (Mg)") +
+  labs(x = "North-South coordinates", y = "Margalef (Mg)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ns_plotMg <-  ggplot(data = Index_r_bc, aes(x= UTM.NS, y= Mn)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Menhinick (Mn)") +
+  labs(x = "North-South coordinates", y = "Menhinick (Mn)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 ## EnvHet = Environmental Heterogeneity assessed as the Simpson diversity of frequencies of Habitat types in 25 grid cells in the plot.
 
@@ -465,19 +502,22 @@ bc_het_plotS <- ggplot(data = Index_r_bc, aes(x= EnvHet, y= S)) +
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Richness") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_het_plotMg <- ggplot(data = Index_r_bc, aes(x= EnvHet, y= Mg)) + 
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Margalef (Mg)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_het_plotMn <-  ggplot(data = Index_r_bc, aes(x= EnvHet, y= Mn)) + 
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Menhinick (Mn)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 ################################ Diversity Index ##############################################################################
 
 
@@ -626,28 +666,32 @@ dn_manu_plotDi <- ggplot(dnDivIndex,aes(x= Manure, y = Di)) + # changing the Ind
 ###  Numerical variables
 # A1. dune
 dn_a1_plotH <-  ggplot(data = dnDivIndex,aes(x= A1, y = H)) + # changing the Index
-  labs(x = "Numeric vector of thickness of soil", y = "Shannon's Index (H)") +
+  labs(x = "Thickness of soil A1 horizon", y = "Shannon's Index (H)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))
 
 dn_a1_plotD <-  ggplot(data = dnDivIndex,aes(x= A1, y = D)) + # changing the Index
-  labs(x = "Numeric vector of thickness of soil", y = "Simpson's Index (D)") +
+  labs(x = "Thickness of soil A1 horizon", y = "Simpson's Index (D)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))
 
 dn_a1_plotJ <-  ggplot(data = dnDivIndex,aes(x= A1, y = J)) + # changing the Index
-  labs(x = "Numeric vector of thickness of soil", y = "Pielou Index (J)") +
+  labs(x = "Thickness of soil A1 horizon", y = "Pielou Index (J)") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))
 
 dn_a1_plotDi <- ggplot(data = dnDivIndex,aes(x= A1, y = Di)) + # changing the Index
-  labs(x = "Numeric vector of thickness of soil", y = "Inverse Simpson Index (Di)") +
+  labs(x = "Thickness of soil A1 horizon", y = "Inverse Simpson Index (Di)") +
   geom_point(size = 4, shape = 21, fill = "#fd8d3c", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12))
 
 
 ###########################
@@ -774,50 +818,58 @@ mt_den_plotH <-  ggplot(data = mtDivIndex,aes(x= SubsDens, y = H)) + # changing 
   labs(x = "Substrate density (g/L)", y = "Shannon's Index (H)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_den_plotD <-  ggplot(data = mtDivIndex,aes(x= SubsDens, y = D)) + # changing the Index
   labs(x = "Substrate density (g/L)", y = "Simpson's Index (D)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_den_plotJ <-  ggplot(data = mtDivIndex,aes(x= SubsDens, y = J)) + # changing the Index
   labs(x = "Substrate density (g/L)", y = "Pielou Index (J)") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_den_plotDi <- ggplot(data = mtDivIndex,aes(x= SubsDens, y = Di)) + # changing the Index
   labs(x = "Substrate density (g/L)", y = "Inverse Simpson Index (Di)") +
   geom_point(size = 4, shape = 21, fill = "#fd8d3c", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 # WatrCont. mite
 mt_wt_plotH <-  ggplot(data = mtDivIndex,aes(x= WatrCont, y = H)) + # changing the Index
-  labs(x = "Water content of the substrate (g/L)", y = "Shannon's Index (H)") +
+  labs(x = "Water content (g/L)", y = "Shannon's Index (H)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_wt_plotD <-  ggplot(data = mtDivIndex,aes(x= WatrCont, y = D)) + # changing the Index
-  labs(x = "Water content of the substrate (g/L)", y = "Simpson's Index (D)") +
+  labs(x = "Water content (g/L)", y = "Simpson's Index (D)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_wt_plotJ <-  ggplot(data = mtDivIndex,aes(x= WatrCont, y = J)) + # changing the Index
-  labs(x = "Water content of the substrate (g/L)", y = "Pielou Index (J)") +
+  labs(x = "Water content (g/L)", y = "Pielou Index (J)") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 mt_wt_plotDi <- ggplot(data = mtDivIndex,aes(x= WatrCont, y = Di)) + # changing the Index
-  labs(x = "Water content of the substrate (g/L)", y = "Inverse Simpson Index (Di)") +
+  labs(x = "Water content (g/L)", y = "Inverse Simpson Index (Di)") +
   geom_point(size = 4, shape = 21, fill = "#fd8d3c", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 ###########################
 ### choice: BCI dataset ##
@@ -941,78 +993,92 @@ bc_strm_plotDi <- ggplot(bcDivIndex,aes(x=Stream, y = Di)) + # changing the Inde
 # No plot  made for Precipitation, Elevation and Geology because there is not variation.  
 # UTM.EW. BCI
 bc_ew_plotH <- ggplot(data = bcDivIndex, aes(x= UTM.EW, y= H)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Shannon's Index (H)") +
+  labs(x = "East-West coordinates", y = "Shannon's Index (H)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ew_plotD <- ggplot(data = bcDivIndex, aes(x= UTM.EW, y= D)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Simpson's Index (D)") +
+  labs(x = "East-West coordinates", y = "Simpson's Index (D)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ew_plotJ <- ggplot(data = bcDivIndex, aes(x= UTM.EW, y= J)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Pielou Index (J)") +
+  labs(x = "East-West coordinates", y = "Pielou Index (J)") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ew_plotDi <- ggplot(data = bcDivIndex, aes(x= UTM.EW, y= Di)) + 
-  labs(x = "UTM coordinates (zone 17N) East-West", y = "Inverse Simpson Index (Di)") +
+  labs(x = "East-West coordinates", y = "Inverse Simpson Index (Di)") +
   geom_point(size = 4, shape = 21, fill = "#fd8d3c", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 # UTM.NS. BCI
 bc_ns_plotH <- ggplot(data = bcDivIndex, aes(x= UTM.NS, y= H)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Shannon's Index (H)") +
+  labs(x = "North-South coordinates", y = "Shannon's Index (H)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ns_plotD <- ggplot(data = bcDivIndex, aes(x= UTM.NS, y= D)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Simpson's Index (D)") +
+  labs(x = "North-South coordinates", y = "Simpson's Index (D)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ns_plotJ <- ggplot(data = bcDivIndex, aes(x= UTM.NS, y= J)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Pielou Index (J)") +
+  labs(x = "North-South coordinates", y = "Pielou Index (J)") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_ns_plotDi <- ggplot(data = bcDivIndex, aes(x= UTM.NS, y= Di)) + 
-  labs(x = "UTM coordinates (zone 17N) North-South", y = "Inverse Simpson Index (Di)") +
+  labs(x = "North-South coordinates", y = "Inverse Simpson Index (Di)") +
   geom_point(size = 4, shape = 21, fill = "#fd8d3c", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 # EnvHet. BCI
 bc_het_plotH <- ggplot(data = bcDivIndex, aes(x= EnvHet, y= H)) + 
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Shannon's Index (H)") +
   geom_point(size = 4, shape = 21, fill = "#ffeda0", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_het_plotD <- ggplot(data = bcDivIndex, aes(x= EnvHet, y= D)) + 
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Simpson's Index (D)") +
   geom_point(size = 4, shape = 21, fill = "#a1d99b", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_het_plotJ <- ggplot(data = bcDivIndex, aes(x= EnvHet, y= J)) + 
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Pielou Index (J)") +
   geom_point(size = 4, shape = 21, fill = "#c6dbef", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 bc_het_plotDi <- ggplot(data = bcDivIndex, aes(x= EnvHet, y= Di)) + 
   labs(x = "Habitat heterogeneity (Simpson's Index)", y = "Inverse Simpson Index (Di)") +
   geom_point(size = 4, shape = 21, fill = "#fd8d3c", alpha = 0.7) +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE, color = "black") +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
+
+
 #########################################################################################################
 # Accumulation Curve
 ########################################################################################################
@@ -1052,13 +1118,11 @@ plot_acc_bc <- ggplot(data = bc_acc_dt, aes(x = bc_acc.sites, y = bc_acc.richnes
 #########################################################################################################
                                       # RAREFACTION #
 #########################################################################################################
-
 # using vegan 
 # Function rarefy() gives the expected species richness in random subsamples of size sample from the community. 
 
 ## ## Richness Rarefaction: Rarefy() PLot
 ## the smallest samples into the database
-
 
 
 ### Richness Rarecurve( ): Make interactive to choose the steps 1 - 200
