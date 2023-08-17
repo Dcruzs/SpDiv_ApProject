@@ -1079,41 +1079,6 @@ bc_het_plotDi <- ggplot(data = bcDivIndex, aes(x= EnvHet, y= Di)) +
   theme(legend.position = "none", axis.title = element_text(size = 14), axis.text = element_text(size = 12)) 
 
 
-#########################################################################################################
-# Accumulation Curve
-########################################################################################################
-# vegan sp. accumulation in vegan uses "exact" method ( Kindt’s exact method) as default
-dn_acc <- specaccum(dune_vg[, -(1:6)])
-mt_acc <- specaccum(mite_vg[ ,-(1:6)])
-bc_acc <- specaccum(BCI_vg[ ,-(1:10)])
-
-# extract the varibles to ggplot the acc curve
-dn_acc_dt <- data.frame(dn_acc$sites, dn_acc$richness , dn_acc$sd)
-mt_acc_dt <- data.frame(mt_acc$sites, mt_acc$richness , mt_acc$sd)
-bc_acc_dt <- data.frame(bc_acc$sites, bc_acc$richness , bc_acc$sd)
-
-# Acc curve dune
-plot_acc_dn <- ggplot(data = dn_acc_dt, aes(x = dn_acc.sites, y = dn_acc.richness)) +
-  geom_line(colour = "black", size = 1) +
-  geom_ribbon(aes(ymin = dn_acc.richness - dn_acc.sd, ymax = dn_acc.richness + dn_acc.sd), 
-              fill = "#2b8cbe", alpha = 0.2) + ylim(0, 35) +
-  labs(x = "Sample", y = "Number of expected species") +
-  theme_bw()
-# Acc curve mite
-plot_acc_mt <- ggplot(data = mt_acc_dt, aes(x = mt_acc.sites, y = mt_acc.richness)) +
-  geom_line(colour = "black", size = 1) +
-  geom_ribbon(aes(ymin = mt_acc.richness - mt_acc.sd, ymax = mt_acc.richness + mt_acc.sd), 
-              fill = "#2b8cbe", alpha = 0.2) + ylim(0, 40) +
-  labs(x = "Sample", y = "Number of expected species") +
-  theme_bw()
-# Acc curve bci
-plot_acc_bc <- ggplot(data = bc_acc_dt, aes(x = bc_acc.sites, y = bc_acc.richness)) +
-  geom_line(colour = "black", size = 1) +
-  geom_ribbon(aes(ymin = bc_acc.richness - bc_acc.sd, ymax = bc_acc.richness + bc_acc.sd),
-              fill = "#2b8cbe", alpha = 0.2) + ylim(0,250) +
-  labs(x = "Sample", y = "Number of expected species") + 
-  theme_bw()
-
 
 #########################################################################################################
                                       # RAREFACTION #
