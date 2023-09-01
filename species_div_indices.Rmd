@@ -24,11 +24,12 @@ library(ggplotify) # to convert ggplot into grob
 # ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
-Species Diversity metrics estimate the number of species in an environment. The Diversity of species is represented by a single number (index) that summarizes quantitative surveys performed in communities, sites, and samples. Several methods (indices) were developed and are frequently used in ecology and conservation studies to describe and compare biodiversity. 
+Species Diversity metrics estimate the number of species in a given area. The Diversity of species is represented by a single number (index) that summarizes quantitative surveys conducted with the best collection effort to sample extensive study areas. There are several indices with distinct equations/models that are used in ecological and conservation studies to describe and compare biodiversity. The models applied under the alpha-diversity aspects identify the richness and evenness of particular taxa within a community or sample. Whereas the beta-diversity models assess variations between samples from various groups in various communities or samples.
 
-This App explores and compares some of the most common Biodiversity measurements, divided here into three categories. There are models based on Richness and its indices (Margalef and Menhinick), the proportional abundance of diversity indices (Simpson, Shannon, and Evenness), and sampling size correction (Rarefaction). 
+This app presents the most commonly used alpha diversity indices using data from the R package version 2.6-4 (Oksanen et al. 2022). It is divided into indices that account for the total number of species present and indices that assess both the number of species and their relative abundances. High diversity indicates a habitat with a variety of species, while low diversity indicates fewer species and/or a skewed distribution of abundance.
 
-Note: It is important to mention that these models account for discrete individuals from sexual reproduction species rather than asexual systems, whose approach counts for biomass and percent cover. 
+
+*Note*: It should be noted that these models consider discrete individuals of sexually reproducing species, rather than asexual systems, which would take biomass and percentage cover into account. 
 
 ```{r}
 # choose a data from the vegan package to display the datatable
@@ -74,11 +75,11 @@ shinyApp(ui = ui, server = server)
 
 ### Richness Index
 
-Species richness is simply the number of species found in a area, site, community or ecosystem. It alone does not represent diversity. Communities can be described as having equal Richness but distinct diversity. For instance, green and blue communities have species 1 and 2 but differ in abundance (number of individuals). The abundance of both species in the green community is similar. It is more likely to find both species there than in the blue. Therefore, the green community is considered the most diverse.
+Species richness is simply the number of species sampled in a given area, site, community, or ecosystem. However, it does not represent all diversity. Take, for example, two communities—green and blue—each containing species A and B, thus sharing equal species richness. Yet, in terms of diversity, the green community has a higher abundance of species A, which is more likely to be found there than in the blue area.
 
 <img src="SpDiv_ApProject/www/comm_green_blue.png" alt="green blue example" style="height: 200px; width:200px;"/>
 
-We can confirm this difference in diversity based on number of species (richness) using Margalef’s and Menhinick’s indices, where S = richness; N =  total number of individuals in the sample; and In=  natural logarithm: 
+Richness, Margalef and Menhinick indices address diversity based on the quantification of species richness. Richness counts towards the number of species (S). The Margalef and Menhinick indices strongly depend on the sample size and effort, trying to correct them considering the total number of individuals (N).
 
 \[
 Margalef's Index:
@@ -326,35 +327,38 @@ shinyApp(ui = ui, server = server)
 
 ### Diversity Index
  
-The diversity indices relate the total abundance(N) with the abundance of each species (ni) to account for the proportion of species within the sample (pi = ni/N)...
+The species diversity index accounts for the proportion of species in the sample (pi = ni/N) by relating richness (S), total abundance (N), and relative abundance of each species (ni). Differently from richness indices, the most commonly used diversity indices (Shannon’s and Simpson’s) consider situations in which species are rare as opposed to those that are more frequently encountered during the field survey. Such variance in the distribution of abundance among species in a community is referred to as evenness or equitability.
+
+Shannon Diversity Index (H) is more sensitive to both the number of species and their relative abundances. Simpson’s Index (D) is highly sensitive to dominant species, emphasizing the probability that two randomly chosen individuals will belong to the same species (species dominance). Pielou's index (J) measures how evenly individuals are distributed among species. Inverse Simpson’s Index (Di), which is similar to Simpson's index but inverted, measures diversity by considering both species richness and the probability that two randomly chosen individuals will belong to the same species. The choice of which index to use depends on the specific research question and the ecological context, as each provides a different perspective on species diversity within a community. To get a deeper knowledge of ecological diversity, researchers frequently utilize a variety of indices.
 
 \[
-Simposon diversity Index:
+Shannon-Wiener's Index:
+\begin {align}
+H &= - \sum_{i=1}^{S}\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+\end {align}
+\]
+
+\[
+Simpson Index:
 \begin {align}
 D &=\sum_{i=1}^{S}\left(\frac{n_i(n_i-1)}{N(N-1)}\right)
 \end {align}
 \]
 
 \[
-Brillouin diversity index:
+Pielou Index:
 \begin {align}
-B = \frac{ln(N!) - \sum_{i=1}^{S}ln(n_i)!}{N}
+J &= \frac{H}{ln(S)}
 \end {align}
 \]
 
 \[
-Shannon-Wiener's diversity Index:
+Inverse Simpson Index:
 \begin {align}
-H' &= - \sum_{i=1}^{S}\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+Di &= \frac{1}{D}
 \end {align}
 \]
 
-\[
-Evenness:
-\begin {align}
-E &= \frac{H'}{lnN}
-\end {align}
-\]
 
 ```{r params type 1, echo=F}
 pars_vars <- c("$i$", 

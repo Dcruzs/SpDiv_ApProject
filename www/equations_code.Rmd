@@ -15,28 +15,31 @@ Menhinick's Index:
 $$
 Mn = \frac{S}{\sqrt{N}}
 $$
-Odum, Cantlon and Kornicher's Index:
-$$
-Od = \frac{S}{logN}
-$$
+
+
 
 ###Species Diversity Indices
+
+Shannon-Wiener's diversity:
+$$
+H = - \sum_{i=1}^{S}\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+$$
+
 
 Simpson’s diversity:
 $$
 D = \sum_{i=1}^{S}\left(\frac{n_i(n_i-1)}{N(N-1)}\right)
 $$
-Brillouin diversity index:
-
+Pielou Index:
 
 $$
-B = \frac{ln(N!) - \sum_{i=1}^{S}ln(n_i)!}{N}
+J = \frac{H}{ln(S)}
 $$
 
 
-Shannon-Wiener's diversity:
+Inverse Simpson Index:
 $$
-H' = - \sum_{i=1}^{S}\left(\frac{n_i}{N}ln\frac{n_i}{N}\right)
+Di = \frac{1}{D}
 $$
 
 
